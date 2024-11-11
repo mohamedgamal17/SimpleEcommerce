@@ -6,8 +6,11 @@ using FluentValidation;
 using System.Reflection;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using Microsoft.Extensions.Configuration;
+using Autofac.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 
 // Add services to the container.
 
