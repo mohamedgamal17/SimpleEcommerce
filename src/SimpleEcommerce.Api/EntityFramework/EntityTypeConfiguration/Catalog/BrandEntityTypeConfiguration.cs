@@ -12,7 +12,7 @@ namespace SimpleEcommerce.Api.EntityFramework.EntityTypeConfiguration.Catalog
             builder.Property(x => x.Id).ValueGeneratedOnAdd();
             builder.Property(x => x.Name).HasMaxLength(256).IsRequired();
             builder.Property(x => x.Description).HasMaxLength(600).IsRequired(false);
-            builder.HasMany<ProductBrand>().WithOne().HasForeignKey(x => x.BrandId);
+            builder.HasMany<ProductBrand>().WithOne(x=> x.Brand).HasForeignKey(x => x.BrandId);
         }
     }
 }
