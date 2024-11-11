@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimpleEcommerce.Api.Domain.Catalog;
@@ -16,11 +18,12 @@ namespace SimpleEcommerce.Api.Controllers
     {
         private readonly IRepository<Category> _categoryRepository;
         private readonly EcommerceDbContext _ecommerceDbContext;
-
-        public CategoryController(IRepository<Category> categoryRepository, EcommerceDbContext ecommerceDbContext)
+        private readonly IMapper _mapper;
+        public CategoryController(IRepository<Category> categoryRepository, EcommerceDbContext ecommerceDbContext, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
             _ecommerceDbContext = ecommerceDbContext;
+            _mapper = mapper;
         }
 
 
@@ -28,9 +31,9 @@ namespace SimpleEcommerce.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type= typeof(PagedDto<CategoryDto>))]
         public async Task<PagedDto<CategoryDto>> GetCategoriesPaged(int skip = 0 ,int limit = 10)
         {
-            var query = PrepareCategoryDtoQuery(_categoryRepository.AsQuerable());
-
-            var result = await query.ToPaged(skip, limit);
+            var result = await _categoryRepository.AsQuerable()
+                .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
+                .ToPaged(skip, limit);
 
             return result;
         }
@@ -39,9 +42,10 @@ namespace SimpleEcommerce.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
         public async Task<CategoryDto> GetCategory(int id)
         {
-            var query = PrepareCategoryDtoQuery(_categoryRepository.AsQuerable());
 
-            var result = await query.SingleOrDefaultAsync(x => x.Id == id);
+            var result = await _categoryRepository.AsQuerable()
+                .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
+                .SingleOrDefaultAsync(x => x.Id == id);
 
             if(result == null)
             {
@@ -71,9 +75,9 @@ namespace SimpleEcommerce.Api.Controllers
 
             await _categoryRepository.InsertAsync(category);
 
-            var query = PrepareCategoryDtoQuery(_categoryRepository.AsQuerable());
-
-            return await query.SingleAsync(x => x.Id == category.Id);
+            return await _categoryRepository.AsQuerable()
+                .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
+                .SingleAsync(x => x.Id == category.Id);
         }
 
         [HttpPut("{id}")]
@@ -100,20 +104,11 @@ namespace SimpleEcommerce.Api.Controllers
 
             await _categoryRepository.UpdateAsync(category);
 
-            var query = PrepareCategoryDtoQuery(_categoryRepository.AsQuerable());
 
-            return await query.SingleAsync(x => x.Id == category.Id);
+            return await _categoryRepository.AsQuerable()
+                .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
+                .SingleAsync(x => x.Id == category.Id);
         }
-        private IQueryable<CategoryDto> PrepareCategoryDtoQuery(IQueryable<Category> query)
-        {
-            var newQuery = query.Select(x=> new CategoryDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description
-            });
-
-            return newQuery;
-        }
+  
     }
 }

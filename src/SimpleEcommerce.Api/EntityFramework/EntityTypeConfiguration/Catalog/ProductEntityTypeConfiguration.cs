@@ -15,6 +15,9 @@ namespace SimpleEcommerce.Api.EntityFramework.EntityTypeConfiguration.Catalog
 
             builder.HasMany(x => x.ProductCategories).WithOne().HasForeignKey(x => x.ProductId);
             builder.HasMany(x => x.ProductBrands).WithOne().HasForeignKey(x => x.ProductId);
+
+            builder.Navigation(x => x.ProductCategories).AutoInclude();
+            builder.Navigation(x => x.ProductBrands).AutoInclude();
         }
     }
 }

@@ -19,6 +19,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
 builder.Services.AddDbContext<EcommerceDbContext>(cfg =>
 {
     cfg.UseSqlServer(builder.Configuration.GetConnectionString("Default"), opt =>
