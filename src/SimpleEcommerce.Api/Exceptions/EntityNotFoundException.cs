@@ -7,7 +7,7 @@
 
         }
 
-        public EntityNotFoundException(Type entity, string id) : base(
+        public EntityNotFoundException(Type entity, int id) : base(
                 $"there is no such {entity.Name} entity with id : {id}"
             )
         {
