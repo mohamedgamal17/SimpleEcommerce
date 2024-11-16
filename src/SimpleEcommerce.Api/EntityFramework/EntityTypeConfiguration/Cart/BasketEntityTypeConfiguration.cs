@@ -15,6 +15,8 @@ namespace SimpleEcommerce.Api.EntityFramework.EntityTypeConfiguration.Cart
             builder.HasMany(x => x.Items).WithOne().HasForeignKey(x => x.BasketId);
 
             builder.HasIndex(x => x.UserId);
+
+            builder.Navigation(x => x.Items).AutoInclude();
         }
     }
 }

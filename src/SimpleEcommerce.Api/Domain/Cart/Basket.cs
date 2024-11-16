@@ -49,6 +49,11 @@ namespace SimpleEcommerce.Api.Domain.Cart
             Items.Remove(item);
         }
 
+        public void Clear()
+        {
+            Items.Clear();
+        }
+
         public void Migrate(Basket basket)
         {
             basket.Items.ForEach(item =>
