@@ -1,7 +1,10 @@
 ﻿namespace SimpleEcommerce.Api.Domain
 {
-    public class Entity
+    public class Entity<TId>
     {
-        public int Id { get; set; }
+        public TId Id { get; set; }
+    }
+    public class Entity : Entity<int>
+    {
     }
 }
