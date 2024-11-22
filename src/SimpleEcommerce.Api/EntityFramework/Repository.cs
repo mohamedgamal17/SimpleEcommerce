@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 namespace SimpleEcommerce.Api.EntityFramework
 {
     public class Repository<TEntity> : IRepository<TEntity>
-        where TEntity : Entity 
+        where TEntity : BaseEntity 
     {
         private readonly EcommerceDbContext _dbContext;
         public Repository(EcommerceDbContext dbContext)

@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 namespace SimpleEcommerce.Api.EntityFramework
 {
     public interface IRepository <TEntity> 
-        where TEntity : Entity
+        where TEntity : BaseEntity
     {
         IQueryable<TEntity> AsQuerable();
         Task DeleteAsync(TEntity entity);
