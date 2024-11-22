@@ -1,7 +1,10 @@
 ﻿namespace SimpleEcommerce.Api.Dtos
 {
-    public class EntityDto
+    public class EntityDto<TId>
     {
-        public int Id { get; set; }
+        public TId Id { get; set; }
+    }
+    public class EntityDto : EntityDto<int>
+    {
     }
 }
