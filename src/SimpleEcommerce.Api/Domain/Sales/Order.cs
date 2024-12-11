@@ -1,4 +1,5 @@
 ﻿using SimpleEcommerce.Api.Domain.Catalog;
+using SimpleEcommerce.Api.Domain.Users;
 using SimpleEcommerce.Api.Exceptions;
 
 namespace SimpleEcommerce.Api.Domain.Sales
@@ -9,8 +10,10 @@ namespace SimpleEcommerce.Api.Domain.Sales
         public double SubTotalPrice { get; set; }
         public double TotalPrice { get; set; }
         public OrderStatus Status { get; private set; }
+        public User User { get; set; }
 
         public List<OrderItem> Items = new List<OrderItem>();
+
         public Order(string userId)
         {
             UserId = userId;
