@@ -15,7 +15,7 @@ namespace SimpleEcommerce.Api.EntityFramework.Migrations
                 name: "User",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<string>(type: "nvarchar(256)", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     BirthDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -40,7 +40,7 @@ namespace SimpleEcommerce.Api.EntityFramework.Migrations
                     Zip = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     AddressLine1 = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     AddressLine2 = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(256)", nullable: false)
                 },
                 constraints: table =>
                 {
