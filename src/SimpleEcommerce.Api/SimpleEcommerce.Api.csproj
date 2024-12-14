@@ -26,4 +26,8 @@
 	  <PackageReference Include="Ardalis.GuardClauses" Version="4.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
 </Project>

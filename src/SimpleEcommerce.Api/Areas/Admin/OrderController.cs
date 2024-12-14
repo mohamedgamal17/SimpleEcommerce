@@ -10,11 +10,11 @@ using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Extensions;
 using SimpleEcommerce.Api.Models.Sales;
-namespace SimpleEcommerce.Api.Controllers
+namespace SimpleEcommerce.Api.Areas.Admin.Controllers
 {
-    [Route("api/orders")]
+    [Route("api/[area]/orders")]
     [ApiController] 
-    public class OrderController : Controller
+    public class OrderController : AdminController
     {
 
         private readonly IRepository<Order> _orderRepository;

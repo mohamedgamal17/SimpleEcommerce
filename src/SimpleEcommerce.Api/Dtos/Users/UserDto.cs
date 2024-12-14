@@ -2,7 +2,7 @@
 
 namespace SimpleEcommerce.Api.Dtos.Users
 {
-    public class UserDto : EntityDto
+    public class UserDto : EntityDto<string>
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

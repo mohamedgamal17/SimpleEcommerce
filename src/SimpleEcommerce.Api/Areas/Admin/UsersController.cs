@@ -1,19 +1,23 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SimpleEcommerce.Api.Areas.Admin;
 using SimpleEcommerce.Api.Domain.Users;
+using SimpleEcommerce.Api.Dtos;
 using SimpleEcommerce.Api.Dtos.Users;
 using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Exceptions;
+using SimpleEcommerce.Api.Extensions;
 using SimpleEcommerce.Api.Models.Users;
 using System.Security.Claims;
 namespace SimpleEcommerce.Api.Controllers
 {
-    [Route("api/user")]
+    [Route("api/[area]/users")]
     [ApiController]
     [Authorize]
-    public class UsersController : ControllerBase
+    public class UsersController : AdminController
     {
         private readonly IRepository<User> _userRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -27,22 +31,33 @@ namespace SimpleEcommerce.Api.Controllers
 
         [Route("")]
         [HttpGet]
-        public async Task<UserDto> GetCurrentUser()
+        public async Task<PagedDto<UserDto>> GetUsersPaged(int skip , int limit = 10)
         {
-            string currentUserId = _httpContextAccessor.HttpContext!.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var query = _userRepository.AsQuerable()
+                .ProjectTo<UserDto>(_mapper.ConfigurationProvider);
 
-            var user = await _userRepository.AsQuerable()
-                .Include(x => x.Addresses)
-                .SingleOrDefaultAsync(x => x.Id == currentUserId);
 
-            if (user == null)
+            var result = await query.ToPaged(skip, limit);
+
+            return result;
+        }
+
+        [Route("{userId}")]
+        [HttpGet]
+        public async Task<UserDto> GetUser(string userId)
+        {
+            var query = _userRepository.AsQuerable()
+                .ProjectTo<UserDto>(_mapper.ConfigurationProvider);
+
+
+            var result = await query.SingleOrDefaultAsync(x => x.Id == userId);
+
+            if(result == null)
             {
-                throw new EntityNotFoundException(typeof(User), currentUserId);
+                throw new EntityNotFoundException(typeof(User), userId);
             }
 
-            var dto = _mapper.Map<User, UserDto>(user);
-
-            return dto;
+            return result;
         }
 
         [Route("")]
@@ -68,19 +83,18 @@ namespace SimpleEcommerce.Api.Controllers
             return _mapper.Map<User, UserDto>(user);
         }
 
-        [Route("")]
+        [Route("{userId}")]
         [HttpPut]
-        public async Task<UserDto> UpdateUser([FromBody] UserModel model)
+        public async Task<UserDto> UpdateUser(string userId,[FromBody] UserModel model)
         {
-            string currentUserId = _httpContextAccessor.HttpContext!.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
 
             var user = await _userRepository.AsQuerable()
                 .Include(x => x.Addresses)
-                .SingleOrDefaultAsync(x => x.Id == currentUserId);
+                .SingleOrDefaultAsync(x => x.Id == userId);
 
             if(user == null)
             {
-                throw new EntityNotFoundException(typeof(User), currentUserId);
+                throw new EntityNotFoundException(typeof(User), userId);
             }
 
             PrepareUser(user, model);

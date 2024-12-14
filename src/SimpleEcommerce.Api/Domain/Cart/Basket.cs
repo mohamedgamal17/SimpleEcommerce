@@ -5,7 +5,7 @@ namespace SimpleEcommerce.Api.Domain.Cart
     public class Basket : Entity
     {
         public string UserId { get; set; }
-        public List<BasketItem> Items { get; set; } = new List<BasketItem>();
+        public List<BasketItem> Items { get; private set; } = new List<BasketItem>();
 
         public Basket()
         {
