@@ -7,8 +7,8 @@ namespace SimpleEcommerce.Api.Domain.Sales
     public class Order : Entity
     {
         public string UserId { get; set; }
-        public double SubTotalPrice { get; set; }
-        public double TotalPrice { get; set; }
+        public double SubTotalPrice { get; protected set; }
+        public double TotalPrice { get; protected set; }
         public OrderStatus Status { get; private set; }
         public User User { get; set; }
 
