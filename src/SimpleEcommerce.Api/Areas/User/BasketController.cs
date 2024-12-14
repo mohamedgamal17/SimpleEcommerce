@@ -3,8 +3,12 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimpleEcommerce.Api.Domain.Cart;
+using SimpleEcommerce.Api.Domain.Catalog;
+using SimpleEcommerce.Api.Domain.Sales;
 using SimpleEcommerce.Api.Dtos.Cart;
+using SimpleEcommerce.Api.Dtos.Sales;
 using SimpleEcommerce.Api.EntityFramework;
+using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Models.Cart;
 using System.Security.Claims;
 namespace SimpleEcommerce.Api.Areas.User
@@ -16,11 +20,15 @@ namespace SimpleEcommerce.Api.Areas.User
         private readonly IRepository<Basket> _basketRepository;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public BasketController(IRepository<Basket> basketRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        private readonly IRepository<Product> _productRepository;
+        private readonly IRepository<Order> _orderRepository;
+        public BasketController(IRepository<Basket> basketRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor, IRepository<Product> productRepository, IRepository<Order> orderRepository)
         {
             _basketRepository = basketRepository;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _productRepository = productRepository;
+            _orderRepository = orderRepository;
         }
 
         [HttpGet("")]
@@ -148,10 +156,12 @@ namespace SimpleEcommerce.Api.Areas.User
         }
 
 
-        [HttpPost("{userId}/clear")]
+        [HttpPost("clear")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BasketDto))]
-        public async Task<BasketDto> ClearBasket(string userId)
+        public async Task<BasketDto> ClearBasket()
         {
+            string userId = _httpContextAccessor.HttpContext!.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
+
             var basket = await _basketRepository.SingleOrDefaultAsync(x => x.UserId == userId);
 
             if (basket == null)
@@ -166,6 +176,63 @@ namespace SimpleEcommerce.Api.Areas.User
             await _basketRepository.UpdateAsync(basket);
 
             return await PrepareBasketQuery().SingleAsync(x => x.Id == basket.Id);
+        }
+
+        [HttpPost("checkout")]
+        [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(OrderDto))]
+        public async Task<OrderDto> Checkout()
+        {
+            string userId = _httpContextAccessor.HttpContext!.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
+
+            var basket = await _basketRepository.SingleOrDefaultAsync(x => x.UserId == userId);
+
+            if (basket == null)
+            {
+                basket = new Basket(userId);
+
+                await _basketRepository.InsertAsync(basket);
+            }
+
+            if(basket.Items.Count < 1)
+            {
+                throw new BusinessLogicException("User basket should at least contain one item to be able to checkout");
+            }
+
+            var basketItems = basket.Items.OrderBy(x => x.ProductId).ToList();
+
+            var products = await _productRepository.AsQuerable()
+                .Where(x => basketItems.Any(c => c.ProductId == x.Id))
+                .ToListAsync();
+
+
+            basket.Clear();
+
+            var order = new Order(userId);
+
+            foreach (var tuple in products.Zip(basketItems))
+            {
+                var product = tuple.First;
+                var basketItem = tuple.Second;
+
+                if(product.Quantity < basketItem.Quantity)
+                {
+                    throw new BusinessLogicException($"Product : {product.Name} availabe quantity is {product.Quantity} , cannot place the order");
+                }
+
+                order.AddOrderItem(product, basketItem.Quantity);
+            }
+
+            await _orderRepository.InsertAsync(order);
+
+            await _basketRepository.UpdateAsync(basket);
+
+            var result = await _orderRepository
+                .AsQuerable()
+                .ProjectTo<OrderDto>(_mapper.ConfigurationProvider)
+                .SingleAsync(x => x.Id == order.Id);
+
+            return result;
+
         }
         private IQueryable<BasketDto> PrepareBasketQuery()
         {
