@@ -7,5 +7,7 @@
         public double Price { get; set; }
         public List<ProductCategory> ProductCategories { get; set; }
         public List<ProductBrand> ProductBrands { get; set; }
+
+        public int Quantity { get; set; }
     }
 }
