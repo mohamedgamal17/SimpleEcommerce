@@ -18,10 +18,10 @@ namespace SimpleEcommerce.Api.Areas.Admin
     [Authorize]
     public class UsersController : AdminController
     {
-        private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Domain.Users.User> _userRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
-        public UsersController(IRepository<User> userRepository, IHttpContextAccessor httpContextAccessor, IMapper mapper)
+        public UsersController(IRepository<Domain.Users.User> userRepository, IHttpContextAccessor httpContextAccessor, IMapper mapper)
         {
             _userRepository = userRepository;
             _httpContextAccessor = httpContextAccessor;
@@ -53,7 +53,7 @@ namespace SimpleEcommerce.Api.Areas.Admin
 
             if (result == null)
             {
-                throw new EntityNotFoundException(typeof(User), userId);
+                throw new EntityNotFoundException(typeof(Domain.Users.User), userId);
             }
 
             return result;
@@ -73,13 +73,13 @@ namespace SimpleEcommerce.Api.Areas.Admin
             }
 
 
-            var user = new User(currentUserId);
+            var user = new Domain.Users.User(currentUserId);
 
             PrepareUser(user, model);
 
             await _userRepository.InsertAsync(user);
 
-            return _mapper.Map<User, UserDto>(user);
+            return _mapper.Map<Domain.Users.User, UserDto>(user);
         }
 
         [Route("{userId}")]
@@ -93,19 +93,19 @@ namespace SimpleEcommerce.Api.Areas.Admin
 
             if (user == null)
             {
-                throw new EntityNotFoundException(typeof(User), userId);
+                throw new EntityNotFoundException(typeof(Domain.Users.User), userId);
             }
 
             PrepareUser(user, model);
 
             await _userRepository.UpdateAsync(user);
 
-            return _mapper.Map<User, UserDto>(user);
+            return _mapper.Map<Domain.Users.User, UserDto>(user);
         }
 
 
 
-        private void PrepareUser(User user, UserModel model)
+        private void PrepareUser(Domain.Users.User user, UserModel model)
         {
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
