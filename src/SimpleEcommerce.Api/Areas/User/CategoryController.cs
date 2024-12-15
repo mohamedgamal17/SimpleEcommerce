@@ -10,7 +10,7 @@ using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Extensions;
 using SimpleEcommerce.Api.Models.Catalog;
-namespace SimpleEcommerce.Api.Controllers
+namespace SimpleEcommerce.Api.Areas.User
 {
     [Route("api/categories")]
     [ApiController]
@@ -28,8 +28,8 @@ namespace SimpleEcommerce.Api.Controllers
 
 
         [HttpGet("")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type= typeof(PagedDto<CategoryDto>))]
-        public async Task<PagedDto<CategoryDto>> GetCategoriesPaged(int skip = 0 ,int limit = 10)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedDto<CategoryDto>))]
+        public async Task<PagedDto<CategoryDto>> GetCategoriesPaged(int skip = 0, int limit = 10)
         {
             var result = await _categoryRepository.AsQuerable()
                 .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
@@ -47,7 +47,7 @@ namespace SimpleEcommerce.Api.Controllers
                 .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
                 .SingleOrDefaultAsync(x => x.Id == id);
 
-            if(result == null)
+            if (result == null)
             {
                 throw new EntityNotFoundException(typeof(Category), id);
             }
@@ -58,7 +58,7 @@ namespace SimpleEcommerce.Api.Controllers
         [HttpPost("")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
-        public async Task<CategoryDto> CreateCategory([FromBody]CategoryModel model)
+        public async Task<CategoryDto> CreateCategory([FromBody] CategoryModel model)
         {
             var nameExist = await _categoryRepository.AnyAsync(x => x.Name == model.Name);
 
@@ -87,7 +87,7 @@ namespace SimpleEcommerce.Api.Controllers
         {
             var category = await _categoryRepository.SingleOrDefaultAsync(x => x.Id == id);
 
-            if(category == null)
+            if (category == null)
             {
                 throw new EntityNotFoundException(typeof(Category), id);
             }
@@ -109,6 +109,6 @@ namespace SimpleEcommerce.Api.Controllers
                 .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
                 .SingleAsync(x => x.Id == category.Id);
         }
-  
+
     }
 }

@@ -3,7 +3,6 @@ using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SimpleEcommerce.Api.Areas.Admin;
 using SimpleEcommerce.Api.Domain.Users;
 using SimpleEcommerce.Api.Dtos;
 using SimpleEcommerce.Api.Dtos.Users;
@@ -12,7 +11,7 @@ using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Extensions;
 using SimpleEcommerce.Api.Models.Users;
 using System.Security.Claims;
-namespace SimpleEcommerce.Api.Controllers
+namespace SimpleEcommerce.Api.Areas.Admin
 {
     [Route("api/[area]/users")]
     [ApiController]
@@ -31,7 +30,7 @@ namespace SimpleEcommerce.Api.Controllers
 
         [Route("")]
         [HttpGet]
-        public async Task<PagedDto<UserDto>> GetUsersPaged(int skip , int limit = 10)
+        public async Task<PagedDto<UserDto>> GetUsersPaged(int skip, int limit = 10)
         {
             var query = _userRepository.AsQuerable()
                 .ProjectTo<UserDto>(_mapper.ConfigurationProvider);
@@ -52,7 +51,7 @@ namespace SimpleEcommerce.Api.Controllers
 
             var result = await query.SingleOrDefaultAsync(x => x.Id == userId);
 
-            if(result == null)
+            if (result == null)
             {
                 throw new EntityNotFoundException(typeof(User), userId);
             }
@@ -62,7 +61,7 @@ namespace SimpleEcommerce.Api.Controllers
 
         [Route("")]
         [HttpPost]
-        public async Task<UserDto> CreateUser([FromBody]UserModel model)
+        public async Task<UserDto> CreateUser([FromBody] UserModel model)
         {
             string currentUserId = _httpContextAccessor.HttpContext!.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
 
@@ -85,14 +84,14 @@ namespace SimpleEcommerce.Api.Controllers
 
         [Route("{userId}")]
         [HttpPut]
-        public async Task<UserDto> UpdateUser(string userId,[FromBody] UserModel model)
+        public async Task<UserDto> UpdateUser(string userId, [FromBody] UserModel model)
         {
 
             var user = await _userRepository.AsQuerable()
                 .Include(x => x.Addresses)
                 .SingleOrDefaultAsync(x => x.Id == userId);
 
-            if(user == null)
+            if (user == null)
             {
                 throw new EntityNotFoundException(typeof(User), userId);
             }
@@ -106,13 +105,13 @@ namespace SimpleEcommerce.Api.Controllers
 
 
 
-        private void PrepareUser(User user , UserModel model)
+        private void PrepareUser(User user, UserModel model)
         {
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
             user.BirthDate = model.BirthDate;
-            
-            if(model.Addresses != null)
+
+            if (model.Addresses != null)
             {
                 user.Addresses = model.Addresses.Select(x => new Address
                 {

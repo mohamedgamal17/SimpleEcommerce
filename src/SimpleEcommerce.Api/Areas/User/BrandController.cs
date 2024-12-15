@@ -10,7 +10,7 @@ using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Extensions;
 using SimpleEcommerce.Api.Models.Catalog;
-namespace SimpleEcommerce.Api.Controllers
+namespace SimpleEcommerce.Api.Areas.User
 {
     [Route("api/brands")]
     [ApiController]
@@ -26,7 +26,7 @@ namespace SimpleEcommerce.Api.Controllers
 
         [HttpGet("")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedDto<CategoryDto>))]
-        public async Task<PagedDto<BrandDto>> GetBrandsPaged(int skip = 0 , int limit = 10)
+        public async Task<PagedDto<BrandDto>> GetBrandsPaged(int skip = 0, int limit = 10)
         {
             var query = _brandRepository.AsQuerable()
                 .ProjectTo<BrandDto>(_mapper.ConfigurationProvider);
@@ -45,7 +45,7 @@ namespace SimpleEcommerce.Api.Controllers
 
             var result = await query.SingleOrDefaultAsync(x => x.Id == id);
 
-            if(result == null)
+            if (result == null)
             {
                 throw new EntityNotFoundException(typeof(Brand), id);
             }
@@ -58,7 +58,7 @@ namespace SimpleEcommerce.Api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
         public async Task<BrandDto> CreateBrand([FromBody] BrandModel model)
         {
-            var nameExist = await _brandRepository.AnyAsync(x => x.Name == model.Name );
+            var nameExist = await _brandRepository.AnyAsync(x => x.Name == model.Name);
 
             if (nameExist)
             {
@@ -83,11 +83,11 @@ namespace SimpleEcommerce.Api.Controllers
         [Authorize]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
-        public async Task<BrandDto> UpdateBrand(int id ,[FromBody] BrandModel model)
+        public async Task<BrandDto> UpdateBrand(int id, [FromBody] BrandModel model)
         {
             var brand = await _brandRepository.SingleOrDefaultAsync(x => x.Id == id);
 
-            if(brand == null)
+            if (brand == null)
             {
                 throw new EntityNotFoundException(typeof(Brand), id);
             }

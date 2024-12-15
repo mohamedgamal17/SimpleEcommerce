@@ -10,10 +10,10 @@ using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Extensions;
 using SimpleEcommerce.Api.Models.Sales;
-namespace SimpleEcommerce.Api.Areas.Admin.Controllers
+namespace SimpleEcommerce.Api.Areas.Admin
 {
     [Route("api/[area]/orders")]
-    [ApiController] 
+    [ApiController]
     public class OrderController : AdminController
     {
 
@@ -50,7 +50,7 @@ namespace SimpleEcommerce.Api.Areas.Admin.Controllers
 
             var result = await query.SingleOrDefaultAsync(x => x.Id == orderId);
 
-            if(result == null)
+            if (result == null)
             {
                 throw new EntityNotFoundException(typeof(Order), orderId);
             }
@@ -66,12 +66,12 @@ namespace SimpleEcommerce.Api.Areas.Admin.Controllers
 
             var products = await _productRepository.AsQuerable()
                 .Where(x => model.Items.Any(c => c.ProductId == x.Id))
-                .OrderBy(x=> x.Id)
+                .OrderBy(x => x.Id)
                 .ToListAsync();
 
             var orderItems = model.Items.OrderBy(x => x.ProductId).ToList();
 
-            foreach(var tuple in products.Zip(orderItems))
+            foreach (var tuple in products.Zip(orderItems))
             {
                 var product = tuple.First;
 

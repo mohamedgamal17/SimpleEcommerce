@@ -11,7 +11,7 @@ using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Extensions;
 using SimpleEcommerce.Api.Models.Catalog;
 
-namespace SimpleEcommerce.Api.Areas.Admin.Controllers
+namespace SimpleEcommerce.Api.Areas.Admin
 {
     [Route("api/[area]/products")]
     [ApiController]
@@ -37,7 +37,7 @@ namespace SimpleEcommerce.Api.Areas.Admin.Controllers
             var query = _productRepository.AsQuerable()
                 .ProjectTo<ProductDto>(_mapper.ConfigurationProvider);
 
-            return await query.OrderBy(x=> x.Id).ToPaged(skip, limit);
+            return await query.OrderBy(x => x.Id).ToPaged(skip, limit);
         }
 
         [HttpGet("{id}")]
@@ -72,7 +72,7 @@ namespace SimpleEcommerce.Api.Areas.Admin.Controllers
             var product = new Product();
 
             await PreapreProduct(product, model);
-       
+
             await _productRepository.InsertAsync(product);
 
 
@@ -89,7 +89,7 @@ namespace SimpleEcommerce.Api.Areas.Admin.Controllers
         {
             var product = await _productRepository.SingleOrDefaultAsync(x => x.Id == id);
 
-            if(product == null)
+            if (product == null)
             {
                 throw new EntityNotFoundException(typeof(Product), id);
             }
@@ -109,7 +109,7 @@ namespace SimpleEcommerce.Api.Areas.Admin.Controllers
                 .SingleAsync(x => x.Id == product.Id);
         }
 
-        private async Task PreapreProduct(Product product , ProductModel model)
+        private async Task PreapreProduct(Product product, ProductModel model)
         {
             product.Name = model.Name;
             product.Description = model.Description;
