@@ -1,21 +1,17 @@
 using SimpleEcommerce.Api.EntityFramework;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Identity;
 using FluentValidation;
 using System.Reflection;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
-using Microsoft.Extensions.Configuration;
 using Autofac.Extensions.DependencyInjection;
+using SimpleEcommerce.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 
-// Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -33,12 +29,20 @@ builder.Services.AddDbContext<EcommerceDbContext>(cfg =>
 builder.Services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
 
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
 builder.Services.AddFluentValidationAutoValidation();
+
+var s3StorageConfig = new S3StorageConfiguration();
+
+builder.Configuration.Bind(S3StorageConfiguration.CONFIG_KEY, s3StorageConfig);
+
+builder.Services.AddSingleton(s3StorageConfig);
+
+builder.Services.AddTransient<S3StorageService>();
 
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
