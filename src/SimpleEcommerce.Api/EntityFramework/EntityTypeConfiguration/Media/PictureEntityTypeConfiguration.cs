@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SimpleEcommerce.Api.Models.Media;
+using SimpleEcommerce.Api.Domain.Media;
 
 namespace SimpleEcommerce.Api.EntityFramework.EntityTypeConfiguration.Media
 {

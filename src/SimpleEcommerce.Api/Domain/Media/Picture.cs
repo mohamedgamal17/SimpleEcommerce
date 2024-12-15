@@ -1,6 +1,6 @@
 ﻿using SimpleEcommerce.Api.Domain;
 
-namespace SimpleEcommerce.Api.Models.Media
+namespace SimpleEcommerce.Api.Domain.Media
 {
     public class Picture : Entity
     {
