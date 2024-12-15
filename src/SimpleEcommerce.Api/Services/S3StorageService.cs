@@ -35,7 +35,7 @@ namespace SimpleEcommerce.Api.Services
         }
 
 
-        public Task GeneratePublicUrl(string key)
+        public string GeneratePublicUrl(string key)
         {
             StringBuilder urlBuilder = new StringBuilder();
 
@@ -43,7 +43,7 @@ namespace SimpleEcommerce.Api.Services
 
             urlBuilder.Append($"{_s3StorageConfiguration.EndPoint}/{_s3StorageConfiguration.BucketName}/{key}");
 
-            return Task.FromResult(urlBuilder.ToString());
+            return urlBuilder.ToString();
         }
 
         private async Task CreateBucketIfNotExist()
