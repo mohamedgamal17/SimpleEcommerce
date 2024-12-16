@@ -10,24 +10,26 @@ using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Extensions;
 using SimpleEcommerce.Api.Models.Catalog;
-
 namespace SimpleEcommerce.Api.Areas.Admin
 {
     [Route("api/[area]/products")]
+    [Authorize]
     [ApiController]
     public class ProductController : AdminController
     {
         private readonly IRepository<Product> _productRepository;
         private readonly IRepository<Category> _categoryRepository;
         private readonly IRepository<Brand> _brandRepository;
+        private readonly IRepository<ProductPicture> _productPictureRepository;
         private readonly IMapper _mapper;
 
-        public ProductController(IRepository<Product> productRepository, IRepository<Category> categoryRepository, IRepository<Brand> brandRepository, IMapper mapper)
+        public ProductController(IRepository<Product> productRepository, IRepository<Category> categoryRepository, IRepository<Brand> brandRepository, IMapper mapper, IRepository<ProductPicture> productPictureRepository)
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
             _brandRepository = brandRepository;
             _mapper = mapper;
+            _productPictureRepository = productPictureRepository;
         }
 
         [HttpGet("")]
@@ -57,7 +59,94 @@ namespace SimpleEcommerce.Api.Areas.Admin
             return result;
         }
 
-        [Authorize]
+
+        [HttpGet("{productId}/pictures")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductPictureDto>))]
+        public async Task<List<ProductPictureDto>> GetProductPictures(int productId)
+        {
+            var product = await _productRepository.SingleOrDefaultAsync(x => x.Id == productId);
+
+            if(product == null)
+            {
+                throw new EntityNotFoundException(typeof(Product), productId);
+            }
+
+            return _mapper.Map<List<ProductPicture>,List<ProductPictureDto>>(product.ProductPictures);
+        }
+
+        [HttpGet("{productId}/pictures/{pictureId}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductPictureDto>))]
+        public async Task<ProductPictureDto> GetProductPicture(int productId , int pictureId)
+        {
+            var product = await _productRepository.SingleOrDefaultAsync(x => x.Id == productId);
+
+            if(product == null)
+            {
+                throw new EntityNotFoundException(typeof(Product), productId);
+            }
+
+            var productPicture = product.ProductPictures.SingleOrDefault(x => x.Id == pictureId);
+
+            if(productPicture == null)
+            {
+                throw new EntityNotFoundException(typeof(ProductPicture), pictureId);
+            }
+
+            return _mapper.Map<ProductPicture, ProductPictureDto>(productPicture);
+        }
+
+        [HttpPost("{productId}/pictures")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductPictureDto))]
+        public async Task<ProductPictureDto> CreateProductPicture(int productId, [FromBody] ProductPictureModel model)
+        {
+            var product = await _productRepository.SingleOrDefaultAsync(x => x.Id == productId);
+
+            if (product == null)
+            {
+                throw new EntityNotFoundException(typeof(Product), productId);
+            }
+
+            var productPicture = new ProductPicture
+            {
+                PictureId = model.PictureId,
+                ProductId = product.Id,
+                DisplayOrder = model.DisplayOrder
+            };
+
+            product.ProductPictures.Add(productPicture);
+
+
+            await _productRepository.UpdateAsync(product);
+
+            productPicture = await _productPictureRepository.SingleAsync(x => x.Id == productPicture.Id);
+
+            return _mapper.Map<ProductPicture, ProductPictureDto>(productPicture);
+        }
+
+        [HttpDelete("{productId}/pictures/{pictureId}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task RemoveProductPicture(int productId , int pictureId)
+        {
+            var product = await _productRepository.SingleOrDefaultAsync(x => x.Id == productId);
+
+            if (product == null)
+            {
+                throw new EntityNotFoundException(typeof(Product), productId);
+            }
+
+            var productPicture = product.ProductPictures.SingleOrDefault(x => x.Id == pictureId);
+
+            if (productPicture == null)
+            {
+                throw new EntityNotFoundException(typeof(ProductPicture), pictureId);
+            }
+
+            product.ProductPictures.Remove(productPicture);
+
+            await _productRepository.UpdateAsync(product);
+
+        }
+
         [HttpPost("")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
         public async Task<ProductDto> CreateProduct([FromBody] ProductModel model)
@@ -82,7 +171,6 @@ namespace SimpleEcommerce.Api.Areas.Admin
         }
 
 
-        [Authorize]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
         public async Task<ProductDto> UpdateProduct(int id, [FromBody] ProductModel model)
@@ -156,6 +244,15 @@ namespace SimpleEcommerce.Api.Areas.Admin
                 {
                     product.ProductBrands = new List<ProductBrand>();
                 }
+            }
+
+            if(model.Pictures != null)
+            {
+                product.ProductPictures = model.Pictures.Select(x => new ProductPicture
+                {
+                    PictureId = x.PictureId,
+                    DisplayOrder = x.DisplayOrder
+                }).ToList();
             }
 
         }
