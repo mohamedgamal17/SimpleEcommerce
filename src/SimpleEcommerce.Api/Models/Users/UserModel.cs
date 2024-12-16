@@ -9,6 +9,8 @@ namespace SimpleEcommerce.Api.Models.Users
         public string LastName { get; set; }
         public DateTime BirthDate { get; set; }
         public Gender Gender { get; set; }
+
+        public int? AvatarId { get; set; }
         public List<AddressModel>? Addresses { get; set; } 
     }
 

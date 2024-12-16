@@ -97,7 +97,7 @@ namespace SimpleEcommerce.Api.Areas.User
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
             user.BirthDate = model.BirthDate;
-
+            user.AvatarId = model.AvatarId;
             if (model.Addresses != null)
             {
                 user.Addresses = model.Addresses.Select(x => new Address

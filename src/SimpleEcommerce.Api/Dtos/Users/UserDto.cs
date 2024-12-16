@@ -1,4 +1,5 @@
-﻿using SimpleEcommerce.Api.Domain.Users;
+﻿using SimpleEcommerce.Api.Domain.Media;
+using SimpleEcommerce.Api.Domain.Users;
 
 namespace SimpleEcommerce.Api.Dtos.Users
 {
@@ -8,6 +9,8 @@ namespace SimpleEcommerce.Api.Dtos.Users
         public string LastName { get; set; }
         public DateTime BirthDate { get; set; }
         public Gender Gender { get; set; }
+        public int? AvatarId { get; set; }
+        public Picture? Avatar { get; set; }
         public List<AddressDto> Addresses { get; set; }
     }
 }
