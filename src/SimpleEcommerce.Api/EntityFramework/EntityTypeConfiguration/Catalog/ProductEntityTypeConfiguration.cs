@@ -12,15 +12,13 @@ namespace SimpleEcommerce.Api.EntityFramework.EntityTypeConfiguration.Catalog
             builder.Property(x => x.Id).ValueGeneratedOnAdd();
             builder.Property(x => x.Name).HasMaxLength(600).IsRequired();
             builder.Property(x => x.Description).HasMaxLength(1500).IsRequired();
-
             builder.HasMany(x => x.ProductCategories).WithOne().HasForeignKey(x => x.ProductId);
             builder.HasMany(x => x.ProductBrands).WithOne().HasForeignKey(x => x.ProductId);
-
+            builder.HasMany(x => x.ProductPictures).WithOne().HasForeignKey(x => x.ProductId);
             builder.Navigation(x => x.ProductCategories).AutoInclude();            
             builder.Navigation(x => x.ProductBrands).AutoInclude();
+            builder.Navigation(x => x.ProductPictures).AutoInclude();
         }
-
-
     }
 
     public class ProductCategoryEntityTypeConfiguration : IEntityTypeConfiguration<ProductCategory>
@@ -36,6 +34,14 @@ namespace SimpleEcommerce.Api.EntityFramework.EntityTypeConfiguration.Catalog
         public void Configure(EntityTypeBuilder<ProductBrand> builder)
         {
             builder.Navigation(x => x.Brand).AutoInclude();
+        }
+    }
+
+    public class ProductPictureEntityTypeConfiguration : IEntityTypeConfiguration<ProductPicture>
+    {
+        public void Configure(EntityTypeBuilder<ProductPicture> builder)
+        {
+            builder.Navigation(x => x.Picture).AutoInclude();
         }
     }
 
