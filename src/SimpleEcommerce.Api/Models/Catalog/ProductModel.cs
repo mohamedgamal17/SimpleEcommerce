@@ -11,16 +11,21 @@ namespace SimpleEcommerce.Api.Models.Catalog
         public double Price { get; set; }
         public List<int>? Categories { get; set; }
         public List<int>? Brands { get; set; }
+
+        public List<ProductPictureModel> Pictures { get; set; }
+
     }
 
     public class ProductModelValidator : AbstractValidator<ProductModel>
     {
         private readonly IRepository<Category> _categoryRepository;
         private readonly IRepository<Brand> _brandRepoistory;
-        public ProductModelValidator(IRepository<Category> categoryRepository, IRepository<Brand> brandRepoistory)
+        private readonly IServiceProvider _serviceProvider;
+        public ProductModelValidator(IRepository<Category> categoryRepository, IRepository<Brand> brandRepoistory, IServiceProvider serviceProvider)
         {
             _categoryRepository = categoryRepository;
             _brandRepoistory = brandRepoistory;
+            _serviceProvider = serviceProvider;
 
             RuleFor(x => x.Name)
                 .MinimumLength(3)
@@ -56,6 +61,14 @@ namespace SimpleEcommerce.Api.Models.Catalog
                 .WithMessage("Product cannot be assigned to more than 10 brands")
                 .When(x => x.Brands != null);
 
+            RuleFor(x => x.Pictures)
+                .Must(x => x.Count <= 10)
+                .WithMessage("Product cannot has more than 10 pictures.")
+                .When(x => x.Pictures != null);
+
+            RuleForEach(x => x.Pictures)
+                .SetValidator(_serviceProvider.GetRequiredService<ProductPictureModelValidator>())
+                .When(x => x.Pictures != null);
         }
 
         private async Task<bool> CheckCategoryExistance(int categoryId , CancellationToken cancellationToken = default)
