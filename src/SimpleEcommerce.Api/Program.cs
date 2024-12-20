@@ -37,6 +37,13 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<EcommerceDbContext>();
 
 
+var jwtConfig = new JwtConfiguration();
+
+builder.Configuration.Bind(JwtConfiguration.CONFIG_KEY, jwtConfig);
+
+builder.Services.AddSingleton(jwtConfig);
+
+builder.Services.AddTransient<IJwtService, JwtService>();
 
 var s3StorageConfig = new S3StorageConfiguration();
 
