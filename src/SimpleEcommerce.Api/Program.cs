@@ -5,6 +5,7 @@ using System.Reflection;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using Autofac.Extensions.DependencyInjection;
 using SimpleEcommerce.Api.Services;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,11 @@ builder.Services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
 builder.Services.AddFluentValidationAutoValidation();
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<EcommerceDbContext>();
+
+
 
 var s3StorageConfig = new S3StorageConfiguration();
 
