@@ -42,7 +42,7 @@ namespace SimpleEcommerce.Api.Areas.User
 
             var identityReuslt = await  _signInManager.PasswordSignInAsync(user, model.Password, false, false);
 
-            if (identityReuslt.IsNotAllowed)
+            if (!identityReuslt.Succeeded)
             {
                 throw new BusinessLogicException("Invalid email or password");
             }
