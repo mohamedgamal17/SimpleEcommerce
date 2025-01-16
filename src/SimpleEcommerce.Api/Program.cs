@@ -6,6 +6,7 @@ using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using Autofac.Extensions.DependencyInjection;
 using SimpleEcommerce.Api.Services;
 using Microsoft.AspNetCore.Identity;
+using SimpleEcommerce.Api.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,9 @@ builder.Services.AddSingleton(s3StorageConfig);
 
 builder.Services.AddTransient<S3StorageService>();
 
+builder.Services.AddTransient<ICurrentUser, CurrentUser>();
+
+builder.Services.AddTransient<ICurrentPrincibalAccessor, HttpContextCurrentPrincibalAccessor>();
 
 var app = builder.Build();
 
