@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimpleEcommerce.Api.Domain.Cart;
@@ -10,32 +11,35 @@ using SimpleEcommerce.Api.Dtos.Sales;
 using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Models.Cart;
+using SimpleEcommerce.Api.Security;
 using System.Security.Claims;
 namespace SimpleEcommerce.Api.Areas.User
 {
     [Route("api/basket")]
     [ApiController]
+    [Authorize]
     public class BasketController : Controller
     {
         private readonly IRepository<Basket> _basketRepository;
         private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<Product> _productRepository;
         private readonly IRepository<Order> _orderRepository;
-        public BasketController(IRepository<Basket> basketRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor, IRepository<Product> productRepository, IRepository<Order> orderRepository)
+        private readonly ICurrentUser _currentUser;
+
+        public BasketController(IRepository<Basket> basketRepository, IMapper mapper, IRepository<Product> productRepository, IRepository<Order> orderRepository, ICurrentUser currentUser)
         {
             _basketRepository = basketRepository;
             _mapper = mapper;
-            _httpContextAccessor = httpContextAccessor;
             _productRepository = productRepository;
             _orderRepository = orderRepository;
+            _currentUser = currentUser;
         }
 
         [HttpGet("")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BasketDto))]
         public async Task<BasketDto> GetUserBasket()
         {
-            string userId = _httpContextAccessor.HttpContext!.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            string userId = _currentUser.Id!;
 
             var query = PrepareBasketQuery();
 
@@ -53,7 +57,7 @@ namespace SimpleEcommerce.Api.Areas.User
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BasketDto))]
         public async Task<BasketDto> UpdateBasket(BasketModel model)
         {
-            string userId = _httpContextAccessor.HttpContext!.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            string userId = _currentUser.Id!;
 
             var basket = await _basketRepository.SingleOrDefaultAsync(x => x.UserId == userId);
 
@@ -84,7 +88,7 @@ namespace SimpleEcommerce.Api.Areas.User
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BasketDto))]
         public async Task<BasketDto> MergeBasket(BasketModel model)
         {
-            string userId = _httpContextAccessor.HttpContext!.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            string userId = _currentUser.Id!;
 
             var basket = await _basketRepository.SingleOrDefaultAsync(x => x.UserId == userId);
 
@@ -114,7 +118,7 @@ namespace SimpleEcommerce.Api.Areas.User
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BasketDto))]
         public async Task<BasketDto> AddOrUpdateProduct( [FromBody] BasketItemModel model)
         {
-            string userId = _httpContextAccessor.HttpContext!.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            string userId = _currentUser.Id!;
 
             var basket = await _basketRepository.SingleOrDefaultAsync(x => x.UserId == userId);
 
@@ -136,7 +140,7 @@ namespace SimpleEcommerce.Api.Areas.User
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BasketDto))]
         public async Task<BasketDto> RemoveProduct( int productId)
         {
-            string userId = _httpContextAccessor.HttpContext!.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            string userId = _currentUser.Id!;
 
             var basket = await _basketRepository.SingleOrDefaultAsync(x => x.UserId == userId);
 
@@ -160,7 +164,7 @@ namespace SimpleEcommerce.Api.Areas.User
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BasketDto))]
         public async Task<BasketDto> ClearBasket()
         {
-            string userId = _httpContextAccessor.HttpContext!.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            string userId = _currentUser.Id!;
 
             var basket = await _basketRepository.SingleOrDefaultAsync(x => x.UserId == userId);
 
@@ -182,7 +186,7 @@ namespace SimpleEcommerce.Api.Areas.User
         [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(OrderDto))]
         public async Task<OrderDto> Checkout()
         {
-            string userId = _httpContextAccessor.HttpContext!.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            string userId = _currentUser.Id!;
 
             var basket = await _basketRepository.SingleOrDefaultAsync(x => x.UserId == userId);
 

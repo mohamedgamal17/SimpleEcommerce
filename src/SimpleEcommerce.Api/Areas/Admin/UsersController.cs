@@ -10,7 +10,7 @@ using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Extensions;
 using SimpleEcommerce.Api.Models.Users;
-using System.Security.Claims;
+using SimpleEcommerce.Api.Security;
 namespace SimpleEcommerce.Api.Areas.Admin
 {
     [Route("api/[area]/users")]
@@ -19,13 +19,14 @@ namespace SimpleEcommerce.Api.Areas.Admin
     public class UsersController : AdminController
     {
         private readonly IRepository<Domain.Users.User> _userRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
-        public UsersController(IRepository<Domain.Users.User> userRepository, IHttpContextAccessor httpContextAccessor, IMapper mapper)
+        private readonly ICurrentUser _currentUser;
+
+        public UsersController(IRepository<Domain.Users.User> userRepository, IMapper mapper, ICurrentUser currentUser)
         {
             _userRepository = userRepository;
-            _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
+            _currentUser = currentUser;
         }
 
         [Route("")]
@@ -63,7 +64,7 @@ namespace SimpleEcommerce.Api.Areas.Admin
         [HttpPost]
         public async Task<UserDto> CreateUser([FromBody] UserModel model)
         {
-            string currentUserId = _httpContextAccessor.HttpContext!.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            string currentUserId = _currentUser.Id!;
 
             var isUserExist = await _userRepository.AnyAsync(x => x.Id == currentUserId);
 

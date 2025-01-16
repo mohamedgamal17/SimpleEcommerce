@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using SimpleEcommerce.Api.Dtos.Identity;
 using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Models.Identity;
+using SimpleEcommerce.Api.Security;
 using SimpleEcommerce.Api.Services;
 using System.Security.Claims;
 namespace SimpleEcommerce.Api.Areas.User
@@ -18,16 +19,16 @@ namespace SimpleEcommerce.Api.Areas.User
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IJwtService _jwtService;
         private readonly IMapper _mapper;
+        private readonly ICurrentUser _currentUser;
 
-        public IdentityController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, IJwtService jwtService, IMapper mapper)
+        public IdentityController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, IJwtService jwtService, IMapper mapper, ICurrentUser currentUser)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _jwtService = jwtService;
             _mapper = mapper;
+            _currentUser = currentUser;
         }
-
-
 
         [Route("login")]
         [HttpPost]
@@ -85,7 +86,7 @@ namespace SimpleEcommerce.Api.Areas.User
 
         public async Task<IdentityUserDto> GetUserInfo()
         {
-            string currentUserId = HttpContext.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            string currentUserId = _currentUser.Id!;
 
             var user = await _userManager.FindByIdAsync(currentUserId);
 
@@ -98,7 +99,7 @@ namespace SimpleEcommerce.Api.Areas.User
         [Authorize]
         public async Task ChangePassword([FromBody] ChangePasswordModel model)
         {
-            string currentUserId = HttpContext.User.Claims.Single(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            string currentUserId = _currentUser.Id!;
 
             var user = await _userManager.FindByIdAsync(currentUserId);
 

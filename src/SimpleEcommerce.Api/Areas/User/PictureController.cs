@@ -5,6 +5,7 @@ using SimpleEcommerce.Api.Domain.Media;
 using SimpleEcommerce.Api.Dtos.Media;
 using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Models.Media;
+using SimpleEcommerce.Api.Security;
 using SimpleEcommerce.Api.Services;
 using System.Security.Claims;
 
@@ -19,18 +20,21 @@ namespace SimpleEcommerce.Api.Areas.User
         private readonly IRepository<Picture> _pictureRepository;
         private readonly S3StorageService _s3StorageService;
         private readonly IMapper _mapper;
-        public PictureController(IRepository<Picture> pictureRepository, S3StorageService s3StorageService, IMapper mapper)
+        private readonly ICurrentUser _currentUser;
+
+        public PictureController(IRepository<Picture> pictureRepository, S3StorageService s3StorageService, IMapper mapper, ICurrentUser currentUser)
         {
             _pictureRepository = pictureRepository;
             _s3StorageService = s3StorageService;
             _mapper = mapper;
+            _currentUser = currentUser;
         }
 
         [Route("upload")]
         [HttpPost]
         public async Task<PictureDto> Upload([FromForm] PictureModel model)
         {
-            string currentUserId = HttpContext.User.Claims.Single(x => x.Type == ClaimTypes.Name).Value;
+            string currentUserId = _currentUser.Id!;
 
             string fileName = $"{model.Image.FileName.Split(".")[0]}_{DateTime.Now.Ticks}.{model.Image.FileName.Split(".")[1]}";
 
