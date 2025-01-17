@@ -11,8 +11,6 @@ namespace SimpleEcommerce.Api.Dtos.Users
                 .ForMember(x => x.Addresses, opt => opt.MapFrom(c => c.Addresses))
                 .ForMember(x => x.Avatar, opt => opt.MapFrom(c => c.Avatar));
 
-
-
             CreateMap<Address, AddressDto>();
           
         }

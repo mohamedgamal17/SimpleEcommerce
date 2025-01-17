@@ -40,7 +40,7 @@ namespace SimpleEcommerce.Api.Areas.User
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
-        public async Task<CategoryDto> GetCategory(int id)
+        public async Task<CategoryDto> GetCategory(string id)
         {
 
             var result = await _categoryRepository.AsQuerable()
@@ -83,7 +83,7 @@ namespace SimpleEcommerce.Api.Areas.User
         [HttpPut("{id}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
-        public async Task<CategoryDto> UpdateCategory(int id, [FromBody] CategoryModel model)
+        public async Task<CategoryDto> UpdateCategory(string id, [FromBody] CategoryModel model)
         {
             var category = await _categoryRepository.SingleOrDefaultAsync(x => x.Id == id);
 

@@ -10,7 +10,6 @@
         public string Zip { get; set; }
         public string AddressLine1 { get; set; }
         public string AddressLine2 { get; set; }
-
         public string UserId { get; set; }
     }
 }

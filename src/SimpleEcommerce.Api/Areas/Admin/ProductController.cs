@@ -44,7 +44,7 @@ namespace SimpleEcommerce.Api.Areas.Admin
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
-        public async Task<ProductDto> GetProduct(int id)
+        public async Task<ProductDto> GetProduct(string id)
         {
             var query = _productRepository.AsQuerable()
                 .ProjectTo<ProductDto>(_mapper.ConfigurationProvider);
@@ -62,7 +62,7 @@ namespace SimpleEcommerce.Api.Areas.Admin
 
         [HttpGet("{productId}/pictures")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductPictureDto>))]
-        public async Task<List<ProductPictureDto>> GetProductPictures(int productId)
+        public async Task<List<ProductPictureDto>> GetProductPictures(string productId)
         {
             var product = await _productRepository.SingleOrDefaultAsync(x => x.Id == productId);
 
@@ -76,7 +76,7 @@ namespace SimpleEcommerce.Api.Areas.Admin
 
         [HttpGet("{productId}/pictures/{pictureId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductPictureDto>))]
-        public async Task<ProductPictureDto> GetProductPicture(int productId , int pictureId)
+        public async Task<ProductPictureDto> GetProductPicture(string productId , string pictureId)
         {
             var product = await _productRepository.SingleOrDefaultAsync(x => x.Id == productId);
 
@@ -97,7 +97,7 @@ namespace SimpleEcommerce.Api.Areas.Admin
 
         [HttpPost("{productId}/pictures")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductPictureDto))]
-        public async Task<ProductPictureDto> CreateProductPicture(int productId, [FromBody] ProductPictureModel model)
+        public async Task<ProductPictureDto> CreateProductPicture(string productId, [FromBody] ProductPictureModel model)
         {
             var product = await _productRepository.SingleOrDefaultAsync(x => x.Id == productId);
 
@@ -125,7 +125,7 @@ namespace SimpleEcommerce.Api.Areas.Admin
 
         [HttpDelete("{productId}/pictures/{pictureId}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task RemoveProductPicture(int productId , int pictureId)
+        public async Task RemoveProductPicture(string productId , string pictureId)
         {
             var product = await _productRepository.SingleOrDefaultAsync(x => x.Id == productId);
 
@@ -173,7 +173,7 @@ namespace SimpleEcommerce.Api.Areas.Admin
 
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
-        public async Task<ProductDto> UpdateProduct(int id, [FromBody] ProductModel model)
+        public async Task<ProductDto> UpdateProduct(string id, [FromBody] ProductModel model)
         {
             var product = await _productRepository.SingleOrDefaultAsync(x => x.Id == id);
 

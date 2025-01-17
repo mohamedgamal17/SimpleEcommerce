@@ -4,7 +4,7 @@ namespace SimpleEcommerce.Api.Domain.Sales
 {
     public class OrderItem : Entity
     {
-        public int ProductId { get; set; }
+        public string ProductId { get; set; }
         public string ProductName { get; set; }
         public int Quantity { get; set; }
         public double Price { get; set; }
@@ -14,7 +14,7 @@ namespace SimpleEcommerce.Api.Domain.Sales
         {
             
         }
-        public OrderItem(int productId, string productName , int quantity , double price)
+        public OrderItem(string productId, string productName , int quantity , double price)
         {
             ProductId = productId;
             ProductName = productName;

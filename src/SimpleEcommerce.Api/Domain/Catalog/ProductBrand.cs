@@ -2,20 +2,20 @@
 {
     public class ProductBrand : Entity
     {
-        public int ProductId { get; set; }
-        public int BrandId { get; set; }
+        public string ProductId { get; set; }
+        public string BrandId { get; set; }
         public Brand Brand { get; set; }
         public ProductBrand()
         {
             
         }
-        public ProductBrand(int productId , int brandId)
+        public ProductBrand(string productId , string brandId)
         {
             ProductId = productId;
             BrandId = brandId;
         }
 
-        public ProductBrand(int brandId)
+        public ProductBrand(string brandId)
         {
             BrandId = brandId;
         }

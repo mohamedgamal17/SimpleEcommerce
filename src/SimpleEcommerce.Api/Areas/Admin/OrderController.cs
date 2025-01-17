@@ -44,7 +44,7 @@ namespace SimpleEcommerce.Api.Areas.Admin
 
         [Route("{orderId}")]
         [HttpGet]
-        public async Task<OrderDto> GetOrder(int orderId)
+        public async Task<OrderDto> GetOrder(string orderId)
         {
             var query = _orderRepository.AsQuerable().ProjectTo<OrderDto>(_mapper.ConfigurationProvider);
 

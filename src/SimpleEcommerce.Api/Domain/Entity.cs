@@ -8,7 +8,7 @@
     {
         public TId Id { get; set; }
     }
-    public abstract class Entity : Entity<int>
+    public abstract class Entity : Entity<string>
     {
     }
 }

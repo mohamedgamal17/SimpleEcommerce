@@ -45,7 +45,7 @@ namespace SimpleEcommerce.Api.Areas.User
 
         [Route("{orderId}")]
         [HttpGet]
-        public async Task<OrderDto> GetOrder(int orderId)
+        public async Task<OrderDto> GetOrder(string orderId)
         {
             string userId = _currentUser.Id!;
 

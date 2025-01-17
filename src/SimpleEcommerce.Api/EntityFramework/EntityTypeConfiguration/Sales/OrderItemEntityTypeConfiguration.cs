@@ -10,8 +10,7 @@ namespace SimpleEcommerce.Api.EntityFramework.EntityTypeConfiguration.Sales
         {
             builder.HasKey(x => x.Id);
             builder.Property(x => x.ProductName).HasMaxLength(600);
-            builder.Property(x => x.ProductId).HasMaxLength(256);
-
+            builder.Property(x => x.ProductId);
             builder.HasOne(x => x.Product).WithMany().HasForeignKey(x => x.ProductId);
         }
     }

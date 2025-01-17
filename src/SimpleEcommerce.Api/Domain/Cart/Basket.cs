@@ -18,13 +18,13 @@ namespace SimpleEcommerce.Api.Domain.Cart
         }
 
 
-        public void AddProduct(int productId , int quantity)
+        public void AddProduct(string productId , int quantity)
         {
             var item = Items.SingleOrDefault(x => x.ProductId == productId);
 
             if(item == null)
             {
-                item = new BasketItem(Id, quantity);
+                item = new BasketItem(Id, productId,quantity);
 
                 Items.Add(item);
             }
@@ -37,7 +37,7 @@ namespace SimpleEcommerce.Api.Domain.Cart
             }
         }
 
-        public void RemoveItem(int productId)
+        public void RemoveItem(string productId)
         {
             var item = Items.SingleOrDefault(x => x.ProductId == productId);
             

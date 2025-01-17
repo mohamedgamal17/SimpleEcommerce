@@ -20,6 +20,7 @@ namespace SimpleEcommerce.Api.Models.Sales
             _userRepository = userRepository;
 
             RuleFor(x => x.UserId)
+                .MaximumLength(450)
                 .MustAsync(CheckUserId)
                 .WithMessage("User id should be valid");
 

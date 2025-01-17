@@ -6,7 +6,7 @@ namespace SimpleEcommerce.Api.Models.Sales
 {
     public class OrderItemModel
     {
-        public int ProductId { get; set; }
+        public string ProductId { get; set; }
         public int Quantity { get; set; }
     }
 
@@ -18,6 +18,7 @@ namespace SimpleEcommerce.Api.Models.Sales
             RuleFor(x => x.ProductId)
                 .NotEmpty()
                 .NotNull()
+                .MaximumLength(450)
                 .MustAsync(CheckProductId)
                 .WithMessage("Product id should be valid");
 
@@ -28,7 +29,7 @@ namespace SimpleEcommerce.Api.Models.Sales
             _productRepository = productRepository;
         }
 
-        private async Task<bool> CheckProductId(int productId , CancellationToken cancellationToken)
+        private async Task<bool> CheckProductId(string productId , CancellationToken cancellationToken)
         {
             return await _productRepository.AnyAsync(x => x.Id == productId);
         }

@@ -8,7 +8,7 @@ namespace SimpleEcommerce.Api.Domain.Users
         public string LastName { get; set; }
         public DateTime BirthDate { get; set; }
         public Gender Gender { get; set; }
-        public int? AvatarId { get; set; }
+        public string? AvatarId { get; set; }
         public List<Address> Addresses { get; set; }
         public Picture Avatar { get; set; }
         private User()

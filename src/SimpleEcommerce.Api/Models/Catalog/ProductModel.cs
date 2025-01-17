@@ -9,8 +9,8 @@ namespace SimpleEcommerce.Api.Models.Catalog
         public string  Name { get; set; }
         public string? Description { get; set; }
         public double Price { get; set; }
-        public List<int>? Categories { get; set; }
-        public List<int>? Brands { get; set; }
+        public List<string>? Categories { get; set; }
+        public List<string>? Brands { get; set; }
 
         public List<ProductPictureModel> Pictures { get; set; }
 
@@ -42,6 +42,7 @@ namespace SimpleEcommerce.Api.Models.Catalog
                 .LessThanOrEqualTo(int.MaxValue);
 
             RuleForEach(x => x.Categories)
+                .MaximumLength(450)
                 .MustAsync(CheckCategoryExistance)
                 .WithMessage((_, categoryId) => $"Category with id : (${categoryId}) , is not exist")
                 .When(x => x.Categories != null);
@@ -52,6 +53,7 @@ namespace SimpleEcommerce.Api.Models.Catalog
                 .When(x => x.Categories != null);
 
             RuleForEach(x => x.Brands)
+                .MaximumLength(450)
                 .MustAsync(CheckBrandExistance)
                 .WithMessage((_, brandId) => $"Brand with id : (${brandId}) , is not exist")
                 .When(x => x.Brands != null);
@@ -71,12 +73,12 @@ namespace SimpleEcommerce.Api.Models.Catalog
                 .When(x => x.Pictures != null);
         }
 
-        private async Task<bool> CheckCategoryExistance(int categoryId , CancellationToken cancellationToken = default)
+        private async Task<bool> CheckCategoryExistance(string categoryId , CancellationToken cancellationToken = default)
         {
             return await _categoryRepository.AnyAsync(x => x.Id == categoryId);
         }
 
-        private async Task<bool> CheckBrandExistance(int brandId , CancellationToken cancellationToken = default)
+        private async Task<bool> CheckBrandExistance(string brandId , CancellationToken cancellationToken = default)
         {
             return await _brandRepoistory.AnyAsync(x => x.Id == brandId);
         }

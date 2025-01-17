@@ -47,7 +47,7 @@ namespace SimpleEcommerce.Api.Areas.User
 
             if (basket == null)
             {
-                basket = new BasketDto { Id = 0, UserId = userId };
+                basket = new BasketDto { Id = Guid.NewGuid().ToString(), UserId = userId };
             }
 
             return basket;
@@ -138,7 +138,7 @@ namespace SimpleEcommerce.Api.Areas.User
 
         [HttpDelete("items/{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BasketDto))]
-        public async Task<BasketDto> RemoveProduct( int productId)
+        public async Task<BasketDto> RemoveProduct(string productId)
         {
             string userId = _currentUser.Id!;
 

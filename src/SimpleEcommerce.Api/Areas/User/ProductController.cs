@@ -38,7 +38,7 @@ namespace SimpleEcommerce.Api.Areas.User
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
-        public async Task<ProductDto> GetProduct(int id)
+        public async Task<ProductDto> GetProduct(string id)
         {
             var query = _productRepository.AsQuerable()
                 .ProjectTo<ProductDto>(_mapper.ConfigurationProvider);
@@ -55,7 +55,7 @@ namespace SimpleEcommerce.Api.Areas.User
 
         [HttpGet("{productId}/pictures")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductPictureDto>))]
-        public async Task<List<ProductPictureDto>> GetProductPictures(int productId)
+        public async Task<List<ProductPictureDto>> GetProductPictures(string productId)
         {
             var product = await _productRepository.SingleOrDefaultAsync(x => x.Id == productId);
 
@@ -69,7 +69,7 @@ namespace SimpleEcommerce.Api.Areas.User
 
         [HttpGet("{productId}/pictures/{pictureId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductPictureDto>))]
-        public async Task<ProductPictureDto> GetProductPicture(int productId, int pictureId)
+        public async Task<ProductPictureDto> GetProductPicture(string productId, string pictureId)
         {
             var product = await _productRepository.SingleOrDefaultAsync(x => x.Id == productId);
 

@@ -6,7 +6,7 @@ namespace SimpleEcommerce.Api.Models.Cart
 {
     public class BasketItemModel
     {
-        public int ProductId { get; set; }
+        public string ProductId { get; set; }
 
         public int Quantity { get; set; }
     }
@@ -21,12 +21,13 @@ namespace SimpleEcommerce.Api.Models.Cart
             RuleFor(x => x.ProductId)
                 .NotNull()
                 .NotEmpty()
+                .MaximumLength(450)
                 .MustAsync(CheckProductExist)
                 .WithMessage((_, productId) => $"Product with id : ({productId}) , is not exist");
 
         }
 
-        private async Task<bool> CheckProductExist(int productId , CancellationToken cancellationToken = default)
+        private async Task<bool> CheckProductExist(string productId , CancellationToken cancellationToken = default)
         {
             return await _productRepository.AnyAsync(x => x.Id == productId);
         }

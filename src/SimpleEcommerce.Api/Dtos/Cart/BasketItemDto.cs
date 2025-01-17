@@ -4,7 +4,7 @@ namespace SimpleEcommerce.Api.Dtos.Cart
 {
     public class BasketItemDto : EntityDto
     {
-        public int ProductId { get; set; }
+        public string ProductId { get; set; }
         public ProductDto Product { get; set; }
         public int Quantity { get; set; }
     }

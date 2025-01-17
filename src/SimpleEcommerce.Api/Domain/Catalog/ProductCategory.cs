@@ -2,20 +2,20 @@
 {
     public class ProductCategory : Entity
     {
-        public int ProductId { get; set; }
-        public int CategoryId { get; set; }
+        public string ProductId { get; set; }
+        public string CategoryId { get; set; }
 
         public Category Category { get; set; }
         public ProductCategory()
         {
 
         }
-        public ProductCategory(int productId , int categoryId)
+        public ProductCategory(string productId , string categoryId)
         {
             ProductId = productId;
             CategoryId = categoryId;
         }
-        public ProductCategory(int categoryId)
+        public ProductCategory(string categoryId)
         {
             CategoryId = categoryId;
         }

@@ -38,7 +38,7 @@ namespace SimpleEcommerce.Api.Areas.Admin
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
-        public async Task<BrandDto> GetBrand(int id)
+        public async Task<BrandDto> GetBrand(string id)
         {
             var query = _brandRepository.AsQuerable()
                .ProjectTo<BrandDto>(_mapper.ConfigurationProvider);
@@ -83,7 +83,7 @@ namespace SimpleEcommerce.Api.Areas.Admin
         [Authorize]
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
-        public async Task<BrandDto> UpdateBrand(int id, [FromBody] BrandModel model)
+        public async Task<BrandDto> UpdateBrand(string id, [FromBody] BrandModel model)
         {
             var brand = await _brandRepository.SingleOrDefaultAsync(x => x.Id == id);
 
