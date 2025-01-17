@@ -7,7 +7,6 @@ using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Models.Identity;
 using SimpleEcommerce.Api.Security;
 using SimpleEcommerce.Api.Services;
-using System.Security.Claims;
 namespace SimpleEcommerce.Api.Areas.User
 {
     [Route("api/identity")]
@@ -45,7 +44,9 @@ namespace SimpleEcommerce.Api.Areas.User
 
             if (!identityReuslt.Succeeded)
             {
-                throw new BusinessLogicException("Invalid email or password");
+                var error = ExtractSignInResultError(identityReuslt);
+
+                throw new BusinessLogicException(error);
             }
 
             var principal = await _signInManager.CreateUserPrincipalAsync(user);
@@ -71,7 +72,9 @@ namespace SimpleEcommerce.Api.Areas.User
 
             if (!identityResult.Succeeded)
             {
-                throw new BusinessLogicException(identityResult.Errors.Select(x => x.Description));
+                var errors = SerializeIdentityResult(identityResult);
+
+                throw new ValidationException(errors);
             }
 
             await _userManager.FindByEmailAsync(model.Email);
@@ -109,6 +112,37 @@ namespace SimpleEcommerce.Api.Areas.User
             {
                 throw new BusinessLogicException(identityResult.Errors.Select(x => x.Description));
             }
+        }
+
+
+
+        private Dictionary<string, string[]> SerializeIdentityResult(IdentityResult identityResult)
+        {
+            var dict = new Dictionary<string, string[]>();
+
+
+            foreach (var item in identityResult.Errors)
+            {
+                dict.Add(item.Code, new string[] { item.Description });
+            }
+
+            return dict;
+        }
+
+
+        private string ExtractSignInResultError(Microsoft.AspNetCore.Identity.SignInResult result)
+        {
+            if (result.IsLockedOut)
+            {
+                return "Current user is locked out";
+            }
+
+            if (result.IsNotAllowed)
+            {
+                return "Invalid email or password";
+            }
+
+            return string.Empty;
         }
     }
 }
