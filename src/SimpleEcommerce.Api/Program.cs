@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using SimpleEcommerce.Api.Security;
 using IdentityModel;
 using System.Security.Claims;
+using SimpleEcommerce.Api.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,7 +70,11 @@ builder.Services.AddTransient<ICurrentUser, CurrentUser>();
 
 builder.Services.AddTransient<ICurrentPrincibalAccessor, HttpContextCurrentPrincibalAccessor>();
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
 var app = builder.Build();
+
+app.UseExceptionHandler(options => { });
 
 if (app.Environment.IsDevelopment())
 {
@@ -80,6 +85,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
 
 app.MapControllers();
 
