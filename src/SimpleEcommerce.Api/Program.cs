@@ -7,6 +7,8 @@ using Autofac.Extensions.DependencyInjection;
 using SimpleEcommerce.Api.Services;
 using Microsoft.AspNetCore.Identity;
 using SimpleEcommerce.Api.Security;
+using IdentityModel;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,8 +36,17 @@ builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
 builder.Services.AddFluentValidationAutoValidation();
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<EcommerceDbContext>();
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(opt =>
+{
+    opt.ClaimsIdentity.UserIdClaimType = JwtClaimTypes.Subject;
+    opt.ClaimsIdentity.UserNameClaimType = JwtClaimTypes.Name;
+    opt.ClaimsIdentity.RoleClaimType = JwtClaimTypes.Roles;
+    opt.ClaimsIdentity.EmailClaimType = JwtClaimTypes.Email;
+}).AddEntityFrameworkStores<EcommerceDbContext>()
+.AddClaimsPrincipalFactory<AppClaimPricnibalFactory>();
+
+
+
 
 
 var jwtConfig = new JwtConfiguration();

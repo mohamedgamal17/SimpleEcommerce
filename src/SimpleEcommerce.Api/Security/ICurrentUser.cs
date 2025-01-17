@@ -8,9 +8,6 @@ namespace SimpleEcommerce.Api.Security
         bool IsAuthenticated { get; }
         string? Id { get; }
         string? UserName { get; }
-        string? GivenName { get; }
-        string? SurName { get; }
-        string? PhoneNumber { get; }
         bool PhoneNumberVerified { get; }
         string? Email { get; }
         bool EmailVerified { get; }

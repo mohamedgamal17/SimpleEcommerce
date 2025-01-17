@@ -8,9 +8,6 @@ namespace SimpleEcommerce.Api.Security
         public bool IsAuthenticated => _princibalAccessor.Principal != null;
         public string? Id => FindClaim(JwtClaimTypes.Subject)?.Value;
         public string? UserName => FindClaim(JwtClaimTypes.Name)?.Value;
-        public string? GivenName => FindClaim(JwtClaimTypes.GivenName)?.Value;
-        public string? SurName => FindClaim(JwtClaimTypes.MiddleName)?.Value;
-        public string? PhoneNumber => FindClaim(JwtClaimTypes.PhoneNumber)?.Value;
         public bool PhoneNumberVerified => 
             string.Equals(FindClaim(JwtClaimTypes.PhoneNumberVerified)?.Value, "true", StringComparison.InvariantCultureIgnoreCase); 
         public string? Email => FindClaim(ClaimTypes.Email)?.Value;  
