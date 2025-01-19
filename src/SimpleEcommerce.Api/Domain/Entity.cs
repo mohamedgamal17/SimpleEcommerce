@@ -10,5 +10,9 @@
     }
     public abstract class Entity : Entity<string>
     {
+        protected Entity()
+        {
+            Id = Guid.NewGuid().ToString();
+        }
     }
 }

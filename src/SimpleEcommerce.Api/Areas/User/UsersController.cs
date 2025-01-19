@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,12 +29,14 @@ namespace SimpleEcommerce.Api.Areas.User
 
         [Route("")]
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDto))]
         public async Task<UserDto> GetCurrentUser()
         {
             string currentUserId = _currentUser.Id!;
 
             var user = await _userRepository.AsQuerable()
                 .Include(x => x.Addresses)
+                .Include(x=> x.Avatar)
                 .SingleOrDefaultAsync(x => x.Id == currentUserId);
 
             if (user == null)
@@ -48,6 +51,7 @@ namespace SimpleEcommerce.Api.Areas.User
 
         [Route("")]
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDto))]
         public async Task<UserDto> CreateUser([FromBody] UserModel model)
         {
             string currentUserId = _currentUser.Id!;
@@ -71,6 +75,7 @@ namespace SimpleEcommerce.Api.Areas.User
 
         [Route("")]
         [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDto))]
         public async Task<UserDto> UpdateUser([FromBody] UserModel model)
         {
             string currentUserId = _currentUser.Id!;
@@ -88,7 +93,14 @@ namespace SimpleEcommerce.Api.Areas.User
 
             await _userRepository.UpdateAsync(user);
 
-            return _mapper.Map<Domain.Users.User, UserDto>(user);
+
+            var result = await _userRepository.AsQuerable()
+                .Include(x => x.Addresses)
+                .Include(x => x.Avatar)
+                .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
+                .SingleAsync(x => x.Id == currentUserId);
+
+            return result;
         }
 
 

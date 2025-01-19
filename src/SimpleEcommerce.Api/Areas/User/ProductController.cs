@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimpleEcommerce.Api.Domain.Catalog;
@@ -9,8 +8,6 @@ using SimpleEcommerce.Api.Dtos.Catalog;
 using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Extensions;
-using SimpleEcommerce.Api.Models.Catalog;
-
 namespace SimpleEcommerce.Api.Areas.User
 {
     [Route("api/products")]

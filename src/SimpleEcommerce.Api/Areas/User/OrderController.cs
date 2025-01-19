@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimpleEcommerce.Api.Domain.Sales;
@@ -13,6 +14,7 @@ namespace SimpleEcommerce.Api.Areas.User
 {
     [Route("api/orders")]
     [ApiController]
+    [Authorize]
     public class OrderController : Controller
     {
 
@@ -28,6 +30,7 @@ namespace SimpleEcommerce.Api.Areas.User
 
         [Route("")]
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedDto<OrderDto>))]
         public async Task<PagedDto<OrderDto>> GetOrdersPaged(int skip = 0, int limit = 10)
         {
             string userId = _currentUser.Id!;
@@ -45,6 +48,7 @@ namespace SimpleEcommerce.Api.Areas.User
 
         [Route("{orderId}")]
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderDto))]
         public async Task<OrderDto> GetOrder(string orderId)
         {
             string userId = _currentUser.Id!;

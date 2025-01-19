@@ -9,7 +9,6 @@ using SimpleEcommerce.Api.Dtos.Catalog;
 using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Extensions;
-using SimpleEcommerce.Api.Models.Catalog;
 namespace SimpleEcommerce.Api.Areas.User
 {
     [Route("api/categories")]
@@ -17,12 +16,10 @@ namespace SimpleEcommerce.Api.Areas.User
     public class CategoryController : ControllerBase
     {
         private readonly IRepository<Category> _categoryRepository;
-        private readonly EcommerceDbContext _ecommerceDbContext;
         private readonly IMapper _mapper;
-        public CategoryController(IRepository<Category> categoryRepository, EcommerceDbContext ecommerceDbContext, IMapper mapper)
+        public CategoryController(IRepository<Category> categoryRepository,  IMapper mapper)
         {
             _categoryRepository = categoryRepository;
-            _ecommerceDbContext = ecommerceDbContext;
             _mapper = mapper;
         }
 
@@ -53,61 +50,6 @@ namespace SimpleEcommerce.Api.Areas.User
             }
 
             return result;
-        }
-
-        [HttpPost("")]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
-        public async Task<CategoryDto> CreateCategory([FromBody] CategoryModel model)
-        {
-            var nameExist = await _categoryRepository.AnyAsync(x => x.Name == model.Name);
-
-            if (nameExist)
-            {
-                throw new BusinessLogicException($"Category name : ${model.Name} , is already exist choose another name");
-            }
-
-            var category = new Category
-            {
-                Name = model.Name,
-                Description = model.Description
-            };
-
-            await _categoryRepository.InsertAsync(category);
-
-            return await _categoryRepository.AsQuerable()
-                .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
-                .SingleAsync(x => x.Id == category.Id);
-        }
-
-        [HttpPut("{id}")]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
-        public async Task<CategoryDto> UpdateCategory(string id, [FromBody] CategoryModel model)
-        {
-            var category = await _categoryRepository.SingleOrDefaultAsync(x => x.Id == id);
-
-            if (category == null)
-            {
-                throw new EntityNotFoundException(typeof(Category), id);
-            }
-
-            var nameExist = await _categoryRepository.AnyAsync(x => x.Name == model.Name && x.Id != id);
-
-            if (nameExist)
-            {
-                throw new BusinessLogicException($"Category name : ${model.Name} , is already exist choose another name");
-            }
-
-            category.Name = model.Name;
-            category.Description = model.Description;
-
-            await _categoryRepository.UpdateAsync(category);
-
-
-            return await _categoryRepository.AsQuerable()
-                .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
-                .SingleAsync(x => x.Id == category.Id);
         }
 
     }

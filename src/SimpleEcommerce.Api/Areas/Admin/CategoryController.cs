@@ -17,12 +17,10 @@ namespace SimpleEcommerce.Api.Areas.Admin
     public class CategoryController : AdminController
     {
         private readonly IRepository<Category> _categoryRepository;
-        private readonly EcommerceDbContext _ecommerceDbContext;
         private readonly IMapper _mapper;
-        public CategoryController(IRepository<Category> categoryRepository, EcommerceDbContext ecommerceDbContext, IMapper mapper)
+        public CategoryController(IRepository<Category> categoryRepository,  IMapper mapper)
         {
             _categoryRepository = categoryRepository;
-            _ecommerceDbContext = ecommerceDbContext;
             _mapper = mapper;
         }
 

@@ -17,6 +17,9 @@ namespace SimpleEcommerce.Api.Dtos.Catalog
             CreateMap<ProductCategory, ProductCategoryDto>()
                 .ForMember(x => x.Category, opt => opt.MapFrom(c => c.Category));
 
+            CreateMap<ProductPicture, ProductPictureDto>()
+                .ForMember(x => x.Picture, opt => opt.MapFrom(c => c.Picture));
+
             CreateMap<Product, ProductDto>()
                 .ForMember(x => x.ProductCategories, opt => opt.MapFrom(c => c.ProductCategories))
                 .ForMember(x => x.ProductBrands, opt => opt.MapFrom(c => c.ProductBrands))

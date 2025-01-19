@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using SimpleEcommerce.Api.Domain.Catalog;
 using SimpleEcommerce.Api.Domain.Sales;
 using SimpleEcommerce.Api.Dtos;
+using SimpleEcommerce.Api.Dtos.Catalog;
 using SimpleEcommerce.Api.Dtos.Sales;
 using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Exceptions;
@@ -30,6 +31,8 @@ namespace SimpleEcommerce.Api.Areas.Admin
 
         [Route("")]
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedDto<OrderDto>))]
+
         public async Task<PagedDto<OrderDto>> GetOrdersPaged(int skip = 0, int limit = 10)
         {
             var query = _orderRepository

@@ -2,13 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SimpleEcommerce.Api.Domain.Media;
+using SimpleEcommerce.Api.Dtos;
 using SimpleEcommerce.Api.Dtos.Media;
+using SimpleEcommerce.Api.Dtos.Sales;
 using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Models.Media;
 using SimpleEcommerce.Api.Security;
 using SimpleEcommerce.Api.Services;
-using System.Security.Claims;
-
 namespace SimpleEcommerce.Api.Areas.User
 {
 
@@ -32,6 +32,7 @@ namespace SimpleEcommerce.Api.Areas.User
 
         [Route("upload")]
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PictureDto))]
         public async Task<PictureDto> Upload([FromForm] PictureModel model)
         {
             string currentUserId = _currentUser.Id!;

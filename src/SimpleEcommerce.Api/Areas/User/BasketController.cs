@@ -12,7 +12,6 @@ using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Models.Cart;
 using SimpleEcommerce.Api.Security;
-using System.Security.Claims;
 namespace SimpleEcommerce.Api.Areas.User
 {
     [Route("api/basket")]
@@ -41,16 +40,18 @@ namespace SimpleEcommerce.Api.Areas.User
         {
             string userId = _currentUser.Id!;
 
-            var query = PrepareBasketQuery();
+            var query = PreapreBasketQuery();
 
             var basket = await query.SingleOrDefaultAsync(x => x.UserId == userId);
 
             if (basket == null)
             {
-                basket = new BasketDto { Id = Guid.NewGuid().ToString(), UserId = userId };
+                basket = new Basket(userId);
+
+                await _basketRepository.InsertAsync(basket);
             }
 
-            return basket;
+            return _mapper.Map<Basket,BasketDto>(basket);
         }
 
         [HttpPut("")]
@@ -80,38 +81,9 @@ namespace SimpleEcommerce.Api.Areas.User
 
             await _basketRepository.UpdateAsync(basket);
 
-            return await PrepareBasketQuery().SingleAsync(x => x.Id == basket.Id);
-        }
+            var result = await PreapreBasketQuery().SingleAsync(x => x.Id == basket.Id);
 
-
-        [HttpPost("merge")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BasketDto))]
-        public async Task<BasketDto> MergeBasket(BasketModel model)
-        {
-            string userId = _currentUser.Id!;
-
-            var basket = await _basketRepository.SingleOrDefaultAsync(x => x.UserId == userId);
-
-            if (basket == null)
-            {
-                basket = new Basket(userId);
-
-                await _basketRepository.InsertAsync(basket);
-            }
-
-            if(model.Items.Count > 0)
-            {
-                model.Items.ForEach(item =>
-                {
-                    basket.AddProduct(item.ProductId, item.Quantity);
-                });
-            }
-
-
-            await _basketRepository.UpdateAsync(basket);
-
-            return await PrepareBasketQuery().SingleAsync(x => x.Id == basket.Id);
-
+            return _mapper.Map<Basket, BasketDto>(result);
         }
 
         [HttpPost("items")]
@@ -133,7 +105,9 @@ namespace SimpleEcommerce.Api.Areas.User
 
             await _basketRepository.UpdateAsync(basket);
 
-            return await PrepareBasketQuery().SingleAsync(x => x.Id == basket.Id);
+            var result = await PreapreBasketQuery().SingleAsync(x => x.Id == basket.Id);
+
+            return _mapper.Map<Basket, BasketDto>(result);
         }
 
         [HttpDelete("items/{productId}")]
@@ -155,7 +129,9 @@ namespace SimpleEcommerce.Api.Areas.User
 
             await _basketRepository.UpdateAsync(basket);
 
-            return await PrepareBasketQuery().SingleAsync(x => x.Id == basket.Id);
+            var result = await PreapreBasketQuery().SingleAsync(x => x.Id == basket.Id);
+
+            return _mapper.Map<Basket, BasketDto>(result);
 
         }
 
@@ -179,7 +155,9 @@ namespace SimpleEcommerce.Api.Areas.User
 
             await _basketRepository.UpdateAsync(basket);
 
-            return await PrepareBasketQuery().SingleAsync(x => x.Id == basket.Id);
+            var result = await PreapreBasketQuery().SingleAsync(x => x.Id == basket.Id);
+
+            return _mapper.Map<Basket, BasketDto>(result);
         }
 
         [HttpPost("checkout")]
@@ -238,12 +216,12 @@ namespace SimpleEcommerce.Api.Areas.User
             return result;
 
         }
-        private IQueryable<BasketDto> PrepareBasketQuery()
+
+        private IQueryable<Basket> PreapreBasketQuery()
         {
             return _basketRepository.AsQuerable()
-                 .Include(x => x.Items)
-                 .ThenInclude(x => x.Product)
-                 .ProjectTo<BasketDto>(_mapper.ConfigurationProvider);
+                .Include(x => x.Items)
+                .ThenInclude(x => x.Product);           
         }
     }
 }
