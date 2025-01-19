@@ -9,8 +9,8 @@ namespace SimpleEcommerce.Api.Dtos.Sales
         public string UserId { get; set; }
         public double SubTotalPrice { get; set; }
         public double TotalPrice { get; set; }
-        public OrderStatus Status { get; private set; }
-        public UserOrderDto User { get; set; }
+        public OrderStatus Status { get;  set; }
+        public UserDto User { get; set; }
 
         public List<OrderItemDto> Items = new List<OrderItemDto>();
     }
