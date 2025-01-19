@@ -1,5 +1,4 @@
-﻿
-namespace SimpleEcommerce.Api.Services
+﻿namespace SimpleEcommerce.Api.Services.Storage
 {
     public interface IS3StorageService
     {

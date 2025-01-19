@@ -1,4 +1,4 @@
-﻿namespace SimpleEcommerce.Api.Services
+﻿namespace SimpleEcommerce.Api.Services.Jwt
 {
     public class JwtConfiguration
     {

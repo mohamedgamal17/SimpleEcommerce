@@ -3,7 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace SimpleEcommerce.Api.Services
+namespace SimpleEcommerce.Api.Services.Jwt
 {
     public class JwtService : IJwtService
     {

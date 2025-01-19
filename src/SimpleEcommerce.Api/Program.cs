@@ -4,13 +4,14 @@ using FluentValidation;
 using System.Reflection;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using Autofac.Extensions.DependencyInjection;
-using SimpleEcommerce.Api.Services;
 using Microsoft.AspNetCore.Identity;
 using SimpleEcommerce.Api.Security;
 using IdentityModel;
 using System.Security.Claims;
 using SimpleEcommerce.Api.Infrastructure;
 using SimpleEcommerce.Api.Extensions;
+using SimpleEcommerce.Api.Services.Jwt;
+using SimpleEcommerce.Api.Services.Storage;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
