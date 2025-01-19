@@ -4,23 +4,23 @@ using System.Text;
 
 namespace SimpleEcommerce.Api.Services
 {
-    public class S3StorageService
+    public class S3StorageService : IS3StorageService
     {
         private readonly IMinioClient _minioClient;
         private readonly S3StorageConfiguration _s3StorageConfiguration;
 
         public S3StorageService(S3StorageConfiguration s3StorageConfiguration)
         {
-        
+
             _s3StorageConfiguration = s3StorageConfiguration;
             _minioClient = GenerateMinioClient(s3StorageConfiguration);
         }
 
 
-        public async Task<string> SaveObjectAsync(string key , Stream content , string contentType)
+        public async Task<string> SaveObjectAsync(string key, Stream content, string contentType)
         {
             await CreateBucketIfNotExist();
-           
+
             var args = new PutObjectArgs()
                 .WithBucket(_s3StorageConfiguration.BucketName)
                 .WithFileName(key)
