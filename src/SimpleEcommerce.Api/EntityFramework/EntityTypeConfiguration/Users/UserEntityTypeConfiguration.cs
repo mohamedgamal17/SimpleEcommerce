@@ -15,6 +15,8 @@ namespace SimpleEcommerce.Api.EntityFramework.EntityTypeConfiguration.Users
             builder.Property(x => x.AvatarId).IsRequired(false);
             builder.HasMany<Address>(x => x.Addresses).WithOne().HasForeignKey(x=> x.UserId);
             builder.HasOne(x => x.Avatar).WithMany().HasForeignKey(x => x.AvatarId);
+
+            builder.Navigation(x => x.Avatar).AutoInclude();
         }
     }
 }
