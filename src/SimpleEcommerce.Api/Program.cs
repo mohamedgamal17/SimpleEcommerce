@@ -10,7 +10,7 @@ using SimpleEcommerce.Api.Security;
 using IdentityModel;
 using System.Security.Claims;
 using SimpleEcommerce.Api.Infrastructure;
-
+using SimpleEcommerce.Api.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
@@ -47,9 +47,6 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(opt =>
 .AddClaimsPrincipalFactory<AppClaimPricnibalFactory>();
 
 
-
-
-
 var jwtConfig = new JwtConfiguration();
 
 builder.Configuration.Bind(JwtConfiguration.CONFIG_KEY, jwtConfig);
@@ -71,6 +68,8 @@ builder.Services.AddTransient<ICurrentUser, CurrentUser>();
 builder.Services.AddTransient<ICurrentPrincibalAccessor, HttpContextCurrentPrincibalAccessor>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+builder.Services.AddResponseFactory(Assembly.GetExecutingAssembly());
 
 var app = builder.Build();
 
