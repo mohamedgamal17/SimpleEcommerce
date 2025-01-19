@@ -1,6 +1,6 @@
 ﻿using SimpleEcommerce.Api.Domain.Media;
 using SimpleEcommerce.Api.Dtos.Media;
-using SimpleEcommerce.Api.Services;
+using SimpleEcommerce.Api.Services.Storage;
 
 namespace SimpleEcommerce.Api.Factories.Media
 {
