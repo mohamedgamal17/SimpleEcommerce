@@ -3,7 +3,7 @@ using SimpleEcommerce.Api.Models.Identity;
 using SimpleEcommerce.Api.Services.Jwt;
 namespace SimpleEcommerce.Api.Services.Identity
 {
-    public interface IIdentityUserService
+    public interface IIdentityUserService  : IApplicationService
     {
         Task<JwtToken> SignInAsync(UserLoginModel model, CancellationToken cancellationToken = default);
         Task<IdentityUserDto> GetInfoAsync(string userId, CancellationToken cancellationToken = default);

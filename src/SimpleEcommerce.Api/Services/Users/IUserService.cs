@@ -5,7 +5,7 @@ using SimpleEcommerce.Api.Models.Common;
 using SimpleEcommerce.Api.Models.Users;
 namespace SimpleEcommerce.Api.Services.Users
 {
-    public interface IUserService
+    public interface IUserService : IApplicationService
     {
         Task<PagedDto<UserDto>> ListPagedAsync(PagingModel model, CancellationToken cancellationToken = default);
         Task<UserDto> GetAsync(string userId, CancellationToken cancellationToken = default);

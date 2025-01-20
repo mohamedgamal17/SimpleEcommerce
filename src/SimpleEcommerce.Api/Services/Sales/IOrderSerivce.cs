@@ -4,7 +4,7 @@ using SimpleEcommerce.Api.Models.Common;
 using SimpleEcommerce.Api.Models.Sales;
 namespace SimpleEcommerce.Api.Services.Sales
 {
-    public interface IOrderSerivce
+    public interface IOrderSerivce : IApplicationService
     {
         Task<PagedDto<OrderDto>> ListPagedAsync(PagingModel model, CancellationToken cancellationToken = default);
         Task<OrderDto> GetAsync(string orderId, CancellationToken cancellationToken = default);

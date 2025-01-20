@@ -2,7 +2,7 @@
 using SimpleEcommerce.Api.Models.Media;
 namespace SimpleEcommerce.Api.Services.Media
 {
-    public interface IPictureService
+    public interface IPictureService : IApplicationService
     {
         Task<PictureDto> CreateUserAvatarAsync(PictureModel model, CancellationToken cancellationToken = default);
 

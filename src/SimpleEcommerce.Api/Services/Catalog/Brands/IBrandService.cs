@@ -4,7 +4,7 @@ using SimpleEcommerce.Api.Models.Catalog;
 using SimpleEcommerce.Api.Models.Common;
 namespace SimpleEcommerce.Api.Services.Catalog.Brands
 {
-    public interface IBrandService
+    public interface IBrandService : IApplicationService
     {
         Task<BrandDto> CreateAsync(BrandModel model, CancellationToken cancellationToken = default);
         Task<BrandDto> UpdateAsync(string id, BrandModel model, CancellationToken cancellationToken = default);

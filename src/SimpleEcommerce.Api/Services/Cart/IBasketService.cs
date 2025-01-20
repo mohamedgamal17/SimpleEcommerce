@@ -2,7 +2,7 @@
 using SimpleEcommerce.Api.Models.Cart;
 namespace SimpleEcommerce.Api.Services.Cart
 {
-    public interface IBasketService
+    public interface IBasketService : IApplicationService
     {
         Task<BasketDto> GetUserBasketAsync(string userId, CancellationToken cancellationToken = default);
         Task<BasketDto> UpdateBasketAsync(string userId, BasketModel basket, CancellationToken cancellationToken = default);
