@@ -54,15 +54,11 @@ builder.Configuration.Bind(JwtConfiguration.CONFIG_KEY, jwtConfig);
 
 builder.Services.AddSingleton(jwtConfig);
 
-builder.Services.AddTransient<IJwtService, JwtService>();
-
 var s3StorageConfig = new S3StorageConfiguration();
 
 builder.Configuration.Bind(S3StorageConfiguration.CONFIG_KEY, s3StorageConfig);
 
 builder.Services.AddSingleton(s3StorageConfig);
-
-builder.Services.AddTransient<S3StorageService>();
 
 builder.Services.AddTransient<ICurrentUser, CurrentUser>();
 
@@ -71,6 +67,8 @@ builder.Services.AddTransient<ICurrentPrincibalAccessor, HttpContextCurrentPrinc
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddResponseFactory(Assembly.GetExecutingAssembly());
+
+builder.Services.AddApplicaitonService(Assembly.GetExecutingAssembly());
 
 var app = builder.Build();
 
