@@ -1,14 +1,9 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SimpleEcommerce.Api.Domain.Users;
 using SimpleEcommerce.Api.Dtos.Users;
-using SimpleEcommerce.Api.EntityFramework;
-using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Models.Users;
 using SimpleEcommerce.Api.Security;
+using SimpleEcommerce.Api.Services.Users;
 namespace SimpleEcommerce.Api.Areas.User
 {
     [Route("api/user")]
@@ -16,14 +11,12 @@ namespace SimpleEcommerce.Api.Areas.User
     [Authorize]
     public class UsersController : ControllerBase
     {
-        private readonly IRepository<Domain.Users.User> _userRepository;
-        private readonly IMapper _mapper;
+        private readonly IUserService _userService;
         private readonly ICurrentUser _currentUser;
 
-        public UsersController(IRepository<Domain.Users.User> userRepository, IMapper mapper, ICurrentUser currentUser)
+        public UsersController(IUserService userService, ICurrentUser currentUser)
         {
-            _userRepository = userRepository;
-            _mapper = mapper;
+            _userService = userService;
             _currentUser = currentUser;
         }
 
@@ -32,21 +25,11 @@ namespace SimpleEcommerce.Api.Areas.User
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDto))]
         public async Task<UserDto> GetCurrentUser()
         {
-            string currentUserId = _currentUser.Id!;
+            string userId = _currentUser.Id!;
 
-            var user = await _userRepository.AsQuerable()
-                .Include(x => x.Addresses)
-                .Include(x=> x.Avatar)
-                .SingleOrDefaultAsync(x => x.Id == currentUserId);
+            var response = await _userService.GetAsync(userId);
 
-            if (user == null)
-            {
-                throw new EntityNotFoundException(typeof(Domain.Users.User), currentUserId);
-            }
-
-            var dto = _mapper.Map<Domain.Users.User, UserDto>(user);
-
-            return dto;
+            return response;
         }
 
         [Route("")]
@@ -54,23 +37,11 @@ namespace SimpleEcommerce.Api.Areas.User
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDto))]
         public async Task<UserDto> CreateUser([FromBody] UserModel model)
         {
-            string currentUserId = _currentUser.Id!;
+            string userId = _currentUser.Id!;
 
-            var isUserExist = await _userRepository.AnyAsync(x => x.Id == currentUserId);
+            var response = await _userService.CreateAsync(userId, model);
 
-            if (isUserExist)
-            {
-                throw new BusinessLogicException("Current user already has profile");
-            }
-
-
-            var user = new Domain.Users.User(currentUserId);
-
-            PrepareUser(user, model);
-
-            await _userRepository.InsertAsync(user);
-
-            return _mapper.Map<Domain.Users.User, UserDto>(user);
+            return response;
         }
 
         [Route("")]
@@ -80,51 +51,9 @@ namespace SimpleEcommerce.Api.Areas.User
         {
             string currentUserId = _currentUser.Id!;
 
-            var user = await _userRepository.AsQuerable()
-                .Include(x => x.Addresses)
-                .SingleOrDefaultAsync(x => x.Id == currentUserId);
+            var response = await _userService.CreateAsync(currentUserId, model);
 
-            if (user == null)
-            {
-                throw new EntityNotFoundException(typeof(Domain.Users.User), currentUserId);
-            }
-
-            PrepareUser(user, model);
-
-            await _userRepository.UpdateAsync(user);
-
-
-            var result = await _userRepository.AsQuerable()
-                .Include(x => x.Addresses)
-                .Include(x => x.Avatar)
-                .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
-                .SingleAsync(x => x.Id == currentUserId);
-
-            return result;
-        }
-
-
-
-        private void PrepareUser(Domain.Users.User user, UserModel model)
-        {
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
-            user.BirthDate = model.BirthDate;
-            user.AvatarId = model.AvatarId;
-            if (model.Addresses != null)
-            {
-                user.Addresses = model.Addresses.Select(x => new Address
-                {
-                    FirstName = x.FirstName,
-                    LastName = x.LastName,
-                    City = x.City,
-                    AddressLine1 = x.AddressLine1,
-                    AddressLine2 = x.AddressLine2,
-                    Phone = x.Phone,
-                    Zip = x.Zip,
-                    Email = x.Email
-                }).ToList();
-            }
+            return response;
         }
     }
 }

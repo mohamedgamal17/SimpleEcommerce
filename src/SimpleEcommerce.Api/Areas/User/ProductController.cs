@@ -1,90 +1,55 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SimpleEcommerce.Api.Domain.Catalog;
+﻿using Microsoft.AspNetCore.Mvc;
 using SimpleEcommerce.Api.Dtos;
 using SimpleEcommerce.Api.Dtos.Catalog;
-using SimpleEcommerce.Api.EntityFramework;
-using SimpleEcommerce.Api.Exceptions;
-using SimpleEcommerce.Api.Extensions;
+using SimpleEcommerce.Api.Models.Common;
+using SimpleEcommerce.Api.Services.Catalog.Products;
 namespace SimpleEcommerce.Api.Areas.User
 {
     [Route("api/products")]
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly IRepository<Product> _productRepository;
-        private readonly IMapper _mapper;
-
-        public ProductController(IRepository<Product> productRepository, IMapper mapper)
+        private readonly IProductService _productService;
+        public ProductController(IProductService productService)
         {
-            _productRepository = productRepository;
-            _mapper = mapper;
+            _productService = productService;
         }
+
 
         [HttpGet("")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedDto<ProductDto>))]
-        public async Task<PagedDto<ProductDto>> GetProductsPaged(int skip = 0, int limit = 10)
+        public async Task<PagedDto<ProductDto>> GetProductsPaged([FromQuery] PagingModel model)
         {
-            var query = _productRepository.AsQuerable()
-                .ProjectTo<ProductDto>(_mapper.ConfigurationProvider);
+            var response = await _productService.ListPagedAsync(model);
 
-            return await query.OrderBy(x => x.Id).ToPaged(skip, limit);
+            return response;
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
         public async Task<ProductDto> GetProduct(string id)
         {
-            var query = _productRepository.AsQuerable()
-                .ProjectTo<ProductDto>(_mapper.ConfigurationProvider);
+            var resposne = await _productService.GetAsync(id);
 
-            var result = await query.SingleOrDefaultAsync(x => x.Id == id);
-
-            if (result == null)
-            {
-                throw new EntityNotFoundException(typeof(Product), id);
-            }
-
-            return result;
+            return resposne;
         }
 
         [HttpGet("{productId}/pictures")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductPictureDto>))]
-        public async Task<List<ProductPictureDto>> GetProductPictures(string productId)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedDto<ProductPictureDto>))]
+        public async Task<PagedDto<ProductPictureDto>> GetProductPictures(string productId, [FromQuery] PagingModel model)
         {
-            var product = await _productRepository.SingleOrDefaultAsync(x => x.Id == productId);
+            var resposne = await _productService.ListProductPicturePagedAsync(productId, model);
 
-            if (product == null)
-            {
-                throw new EntityNotFoundException(typeof(Product), productId);
-            }
-
-            return _mapper.Map<List<ProductPicture>, List<ProductPictureDto>>(product.ProductPictures);
+            return resposne;
         }
 
         [HttpGet("{productId}/pictures/{pictureId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<ProductPictureDto>))]
         public async Task<ProductPictureDto> GetProductPicture(string productId, string pictureId)
         {
-            var product = await _productRepository.SingleOrDefaultAsync(x => x.Id == productId);
+            var resposne = await _productService.GetProductPictureAsync(productId, pictureId);
 
-            if (product == null)
-            {
-                throw new EntityNotFoundException(typeof(Product), productId);
-            }
-
-            var productPicture = product.ProductPictures.SingleOrDefault(x => x.Id == pictureId);
-
-            if (productPicture == null)
-            {
-                throw new EntityNotFoundException(typeof(ProductPicture), pictureId);
-            }
-
-            return _mapper.Map<ProductPicture, ProductPictureDto>(productPicture);
+            return resposne;
         }
-
-
     }
 }

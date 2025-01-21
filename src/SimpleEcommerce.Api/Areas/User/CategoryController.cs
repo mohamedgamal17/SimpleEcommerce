@@ -9,30 +9,29 @@ using SimpleEcommerce.Api.Dtos.Catalog;
 using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Extensions;
+using SimpleEcommerce.Api.Factories.Catalog;
+using SimpleEcommerce.Api.Models.Common;
+using SimpleEcommerce.Api.Services.Catalog.Categories;
 namespace SimpleEcommerce.Api.Areas.User
 {
     [Route("api/categories")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly IRepository<Category> _categoryRepository;
-        private readonly IMapper _mapper;
-        public CategoryController(IRepository<Category> categoryRepository,  IMapper mapper)
-        {
-            _categoryRepository = categoryRepository;
-            _mapper = mapper;
-        }
+        private ICategoryService _categoryService;
 
+        public CategoryController(ICategoryService categoryService)
+        {
+            _categoryService = categoryService;
+        }
 
         [HttpGet("")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PagedDto<CategoryDto>))]
-        public async Task<PagedDto<CategoryDto>> GetCategoriesPaged(int skip = 0, int limit = 10)
-        {
-            var result = await _categoryRepository.AsQuerable()
-                .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
-                .ToPaged(skip, limit);
+        public async Task<PagedDto<CategoryDto>> GetCategoriesPaged([FromQuery]PagingModel model)
+        {        
+            var resposne = await _categoryService.ListPagedAsync(model);
 
-            return result;
+            return resposne;
         }
 
         [HttpGet("{id}")]
@@ -40,16 +39,9 @@ namespace SimpleEcommerce.Api.Areas.User
         public async Task<CategoryDto> GetCategory(string id)
         {
 
-            var result = await _categoryRepository.AsQuerable()
-                .ProjectTo<CategoryDto>(_mapper.ConfigurationProvider)
-                .SingleOrDefaultAsync(x => x.Id == id);
+            var resposne = await _categoryService.GetAsync(id);
 
-            if (result == null)
-            {
-                throw new EntityNotFoundException(typeof(Category), id);
-            }
-
-            return result;
+            return resposne;
         }
 
     }

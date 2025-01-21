@@ -12,6 +12,10 @@ using SimpleEcommerce.Api.Infrastructure;
 using SimpleEcommerce.Api.Extensions;
 using SimpleEcommerce.Api.Services.Jwt;
 using SimpleEcommerce.Api.Services.Storage;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
@@ -38,7 +42,7 @@ builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
 builder.Services.AddFluentValidationAutoValidation();
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(opt =>
+builder.Services.AddIdentityApiEndpoints<IdentityUser>(opt =>
 {
     opt.ClaimsIdentity.UserIdClaimType = JwtClaimTypes.Subject;
     opt.ClaimsIdentity.UserNameClaimType = JwtClaimTypes.Name;
@@ -70,6 +74,20 @@ builder.Services.AddResponseFactory(Assembly.GetExecutingAssembly());
 
 builder.Services.AddApplicaitonService(Assembly.GetExecutingAssembly());
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("Jwt:SecretKey")!))
+        };
+      
+    });
+
 var app = builder.Build();
 
 app.UseExceptionHandler(options => { });
@@ -80,10 +98,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseAuthentication();
 
 app.UseAuthorization();
-
 
 app.MapControllers();
 

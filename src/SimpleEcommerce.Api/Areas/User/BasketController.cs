@@ -1,17 +1,13 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SimpleEcommerce.Api.Domain.Cart;
-using SimpleEcommerce.Api.Domain.Catalog;
-using SimpleEcommerce.Api.Domain.Sales;
 using SimpleEcommerce.Api.Dtos.Cart;
 using SimpleEcommerce.Api.Dtos.Sales;
-using SimpleEcommerce.Api.EntityFramework;
 using SimpleEcommerce.Api.Exceptions;
 using SimpleEcommerce.Api.Models.Cart;
+using SimpleEcommerce.Api.Models.Sales;
 using SimpleEcommerce.Api.Security;
+using SimpleEcommerce.Api.Services.Cart;
+using SimpleEcommerce.Api.Services.Sales;
 namespace SimpleEcommerce.Api.Areas.User
 {
     [Route("api/basket")]
@@ -19,18 +15,14 @@ namespace SimpleEcommerce.Api.Areas.User
     [Authorize]
     public class BasketController : Controller
     {
-        private readonly IRepository<Basket> _basketRepository;
-        private readonly IMapper _mapper;
-        private readonly IRepository<Product> _productRepository;
-        private readonly IRepository<Order> _orderRepository;
+        private readonly IBasketService _basketService;
+        private readonly IOrderSerivce _orderService;
         private readonly ICurrentUser _currentUser;
 
-        public BasketController(IRepository<Basket> basketRepository, IMapper mapper, IRepository<Product> productRepository, IRepository<Order> orderRepository, ICurrentUser currentUser)
+        public BasketController(IBasketService basketService, IOrderSerivce orderService, ICurrentUser currentUser)
         {
-            _basketRepository = basketRepository;
-            _mapper = mapper;
-            _productRepository = productRepository;
-            _orderRepository = orderRepository;
+            _basketService = basketService;
+            _orderService = orderService;
             _currentUser = currentUser;
         }
 
@@ -40,18 +32,9 @@ namespace SimpleEcommerce.Api.Areas.User
         {
             string userId = _currentUser.Id!;
 
-            var query = PreapreBasketQuery();
+            var response = await _basketService.GetUserBasketAsync(userId);
 
-            var basket = await query.SingleOrDefaultAsync(x => x.UserId == userId);
-
-            if (basket == null)
-            {
-                basket = new Basket(userId);
-
-                await _basketRepository.InsertAsync(basket);
-            }
-
-            return _mapper.Map<Basket,BasketDto>(basket);
+            return response;
         }
 
         [HttpPut("")]
@@ -60,54 +43,20 @@ namespace SimpleEcommerce.Api.Areas.User
         {
             string userId = _currentUser.Id!;
 
-            var basket = await _basketRepository.SingleOrDefaultAsync(x => x.UserId == userId);
+            var response = await _basketService.UpdateBasketAsync(userId, model);
 
-            if(basket == null)
-            {
-                basket = new Basket(userId);
-
-                await _basketRepository.InsertAsync(basket);
-            }
-
-            basket.Clear();
-
-            if (model.Items.Count > 0)
-            {
-                model.Items.ForEach(item =>
-                {
-                    basket.AddProduct(item.ProductId, item.Quantity);
-                });
-            }
-
-            await _basketRepository.UpdateAsync(basket);
-
-            var result = await PreapreBasketQuery().SingleAsync(x => x.Id == basket.Id);
-
-            return _mapper.Map<Basket, BasketDto>(result);
+            return response;
         }
 
         [HttpPost("items")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BasketDto))]
-        public async Task<BasketDto> AddOrUpdateProduct( [FromBody] BasketItemModel model)
+        public async Task<BasketDto> AddOrUpdateProduct([FromBody] BasketItemModel model)
         {
             string userId = _currentUser.Id!;
 
-            var basket = await _basketRepository.SingleOrDefaultAsync(x => x.UserId == userId);
+            var response = await _basketService.AddOrUpdateItemAsync(userId, model);
 
-            if (basket == null)
-            {
-                basket = new Basket(userId);
-
-                await _basketRepository.InsertAsync(basket);
-            }
-
-            basket.AddProduct(model.ProductId, model.Quantity);
-
-            await _basketRepository.UpdateAsync(basket);
-
-            var result = await PreapreBasketQuery().SingleAsync(x => x.Id == basket.Id);
-
-            return _mapper.Map<Basket, BasketDto>(result);
+            return response;
         }
 
         [HttpDelete("items/{productId}")]
@@ -116,22 +65,9 @@ namespace SimpleEcommerce.Api.Areas.User
         {
             string userId = _currentUser.Id!;
 
-            var basket = await _basketRepository.SingleOrDefaultAsync(x => x.UserId == userId);
+            var response = await _basketService.RemoveItemAsync(userId, productId);
 
-            if (basket == null)
-            {
-                basket = new Basket(userId);
-
-                await _basketRepository.InsertAsync(basket);
-            }
-
-            basket.RemoveItem(productId);
-
-            await _basketRepository.UpdateAsync(basket);
-
-            var result = await PreapreBasketQuery().SingleAsync(x => x.Id == basket.Id);
-
-            return _mapper.Map<Basket, BasketDto>(result);
+            return response;
 
         }
 
@@ -142,86 +78,36 @@ namespace SimpleEcommerce.Api.Areas.User
         {
             string userId = _currentUser.Id!;
 
-            var basket = await _basketRepository.SingleOrDefaultAsync(x => x.UserId == userId);
+            var response = await _basketService.ClearAsync(userId);
 
-            if (basket == null)
-            {
-                basket = new Basket(userId);
-
-                await _basketRepository.InsertAsync(basket);
-            }
-
-            basket.Clear();
-
-            await _basketRepository.UpdateAsync(basket);
-
-            var result = await PreapreBasketQuery().SingleAsync(x => x.Id == basket.Id);
-
-            return _mapper.Map<Basket, BasketDto>(result);
+            return response;
         }
 
         [HttpPost("checkout")]
-        [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(OrderDto))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderDto))]
         public async Task<OrderDto> Checkout()
         {
             string userId = _currentUser.Id!;
 
-            var basket = await _basketRepository.SingleOrDefaultAsync(x => x.UserId == userId);
+            var basket = await _basketService.GetUserBasketAsync(userId);
 
-            if (basket == null)
-            {
-                basket = new Basket(userId);
-
-                await _basketRepository.InsertAsync(basket);
-            }
-
-            if(basket.Items.Count < 1)
+            if (basket.Items.Count < 1)
             {
                 throw new BusinessLogicException("User basket should at least contain one item to be able to checkout");
             }
 
-            var basketItems = basket.Items.OrderBy(x => x.ProductId).ToList();
-
-            var products = await _productRepository.AsQuerable()
-                .Where(x => basketItems.Any(c => c.ProductId == x.Id))
-                .ToListAsync();
-
-
-            basket.Clear();
-
-            var order = new Order(userId);
-
-            foreach (var tuple in products.Zip(basketItems))
+            var orderModel = new OrderModel
             {
-                var product = tuple.First;
-                var basketItem = tuple.Second;
+                UserId = userId,
+                Items = basket.Items.Select(x => new OrderItemModel { ProductId = x.ProductId, Quantity = x.Quantity }).ToList()
+            };
 
-                if(product.Quantity < basketItem.Quantity)
-                {
-                    throw new BusinessLogicException($"Product : {product.Name} availabe quantity is {product.Quantity} , cannot place the order");
-                }
+            var order = await _orderService.CreateAsync(orderModel);
 
-                order.AddOrderItem(product, basketItem.Quantity);
-            }
+            await _basketService.ClearAsync(userId);
 
-            await _orderRepository.InsertAsync(order);
+            return order;
 
-            await _basketRepository.UpdateAsync(basket);
-
-            var result = await _orderRepository
-                .AsQuerable()
-                .ProjectTo<OrderDto>(_mapper.ConfigurationProvider)
-                .SingleAsync(x => x.Id == order.Id);
-
-            return result;
-
-        }
-
-        private IQueryable<Basket> PreapreBasketQuery()
-        {
-            return _basketRepository.AsQuerable()
-                .Include(x => x.Items)
-                .ThenInclude(x => x.Product);           
         }
     }
 }

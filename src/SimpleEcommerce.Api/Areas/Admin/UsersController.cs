@@ -1,16 +1,10 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SimpleEcommerce.Api.Domain.Users;
 using SimpleEcommerce.Api.Dtos;
 using SimpleEcommerce.Api.Dtos.Users;
-using SimpleEcommerce.Api.EntityFramework;
-using SimpleEcommerce.Api.Exceptions;
-using SimpleEcommerce.Api.Extensions;
+using SimpleEcommerce.Api.Models.Common;
 using SimpleEcommerce.Api.Models.Users;
-using SimpleEcommerce.Api.Security;
+using SimpleEcommerce.Api.Services.Users;
 namespace SimpleEcommerce.Api.Areas.Admin
 {
     [Route("api/[area]/users")]
@@ -18,114 +12,47 @@ namespace SimpleEcommerce.Api.Areas.Admin
     [Authorize]
     public class UsersController : AdminController
     {
-        private readonly IRepository<Domain.Users.User> _userRepository;
-        private readonly IMapper _mapper;
-        private readonly ICurrentUser _currentUser;
+        private readonly IUserService _userService;
 
-        public UsersController(IRepository<Domain.Users.User> userRepository, IMapper mapper, ICurrentUser currentUser)
+        public UsersController(IUserService userService)
         {
-            _userRepository = userRepository;
-            _mapper = mapper;
-            _currentUser = currentUser;
+            _userService = userService;
         }
 
         [Route("")]
         [HttpGet]
-        public async Task<PagedDto<UserDto>> GetUsersPaged(int skip, int limit = 10)
+        public async Task<PagedDto<UserDto>> GetUsersPaged([FromQuery] PagingModel model)
         {
-            var query = _userRepository.AsQuerable()
-                .ProjectTo<UserDto>(_mapper.ConfigurationProvider);
-
-
-            var result = await query.ToPaged(skip, limit);
-
-            return result;
+            var response = await _userService.ListPagedAsync(model);
+           
+            return response;
         }
 
         [Route("{userId}")]
         [HttpGet]
         public async Task<UserDto> GetUser(string userId)
         {
-            var query = _userRepository.AsQuerable()
-                .ProjectTo<UserDto>(_mapper.ConfigurationProvider);
+            var response = await _userService.GetAsync(userId);
 
-
-            var result = await query.SingleOrDefaultAsync(x => x.Id == userId);
-
-            if (result == null)
-            {
-                throw new EntityNotFoundException(typeof(Domain.Users.User), userId);
-            }
-
-            return result;
+            return response;
         }
 
-        [Route("")]
+        [Route("{userId}")]
         [HttpPost]
-        public async Task<UserDto> CreateUser([FromBody] UserModel model)
+        public async Task<UserDto> CreateUser(string userId,[FromBody] UserModel model)
         {
-            string currentUserId = _currentUser.Id!;
+            var response = await _userService.CreateAsync(userId, model);
 
-            var isUserExist = await _userRepository.AnyAsync(x => x.Id == currentUserId);
-
-            if (isUserExist)
-            {
-                throw new BusinessLogicException("Current user already has profile");
-            }
-
-
-            var user = new Domain.Users.User(currentUserId);
-
-            PrepareUser(user, model);
-
-            await _userRepository.InsertAsync(user);
-
-            return _mapper.Map<Domain.Users.User, UserDto>(user);
+            return response;
         }
 
         [Route("{userId}")]
         [HttpPut]
         public async Task<UserDto> UpdateUser(string userId, [FromBody] UserModel model)
         {
+            var response = await _userService.UpdateAsync(userId, model);
 
-            var user = await _userRepository.AsQuerable()
-                .Include(x => x.Addresses)
-                .SingleOrDefaultAsync(x => x.Id == userId);
-
-            if (user == null)
-            {
-                throw new EntityNotFoundException(typeof(Domain.Users.User), userId);
-            }
-
-            PrepareUser(user, model);
-
-            await _userRepository.UpdateAsync(user);
-
-            return _mapper.Map<Domain.Users.User, UserDto>(user);
-        }
-
-
-
-        private void PrepareUser(Domain.Users.User user, UserModel model)
-        {
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
-            user.BirthDate = model.BirthDate;
-            user.AvatarId = model.AvatarId;
-            if (model.Addresses != null)
-            {
-                user.Addresses = model.Addresses.Select(x => new Address
-                {
-                    FirstName = x.FirstName,
-                    LastName = x.LastName,
-                    City = x.City,
-                    AddressLine1 = x.AddressLine1,
-                    AddressLine2 = x.AddressLine2,
-                    Phone = x.Phone,
-                    Zip = x.Zip,
-                    Email = x.Email
-                }).ToList();
-            }
+            return response;
         }
     }
 }
