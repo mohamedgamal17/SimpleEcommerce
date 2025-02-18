@@ -155,12 +155,7 @@ namespace SimpleEcommerce.Api.Services.Identity
                 return "Current user is locked out";
             }
 
-            if (result.IsNotAllowed)
-            {
-                return "Invalid email or password";
-            }
-
-            return string.Empty;
+            return "Invalid email or password.";
         }
     }
 }

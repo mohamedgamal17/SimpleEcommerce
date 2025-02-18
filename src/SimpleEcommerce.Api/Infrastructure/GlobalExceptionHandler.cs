@@ -14,7 +14,7 @@ namespace SimpleEcommerce.Api.Infrastructure
             _exceptionHandlers = new()
             {
                 { typeof(ValidationException), HandleValidationException },
-                { typeof(NotFoundException), HandleNotFoundException },
+                { typeof(EntityNotFoundException), HandleNotFoundException },
                 {typeof(BusinessLogicException), HandleBusinessLogicException },
                 { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
             };
@@ -53,7 +53,7 @@ namespace SimpleEcommerce.Api.Infrastructure
 
         private async Task HandleNotFoundException(HttpContext httpContext, Exception ex)
         {
-            var exception = (NotFoundException)ex;
+            var exception = (EntityNotFoundException)ex;
 
             httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
 

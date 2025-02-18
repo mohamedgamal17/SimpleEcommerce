@@ -77,15 +77,18 @@ builder.Services.AddApplicaitonService(Assembly.GetExecutingAssembly());
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidateAudience = true, 
+            ValidIssuer = builder.Configuration.GetValue<string>("Jwt:Issuer")!,
+            ValidAudience = builder.Configuration.GetValue<string>("Jwt:Audience")!,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("Jwt:SecretKey")!))
         };
-      
+
     });
 
 var app = builder.Build();
@@ -97,7 +100,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors(bld => bld.AllowAnyOrigin()
+   .AllowAnyMethod()
+   .AllowAnyHeader()
+  );
 app.UseAuthentication();
 
 app.UseAuthorization();

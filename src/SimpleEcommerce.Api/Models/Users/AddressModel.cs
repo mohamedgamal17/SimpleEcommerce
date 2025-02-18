@@ -12,7 +12,6 @@ namespace SimpleEcommerce.Api.Models.Users
         public string Zip { get; set; }
         public string AddressLine1 { get; set; }
         public string AddressLine2 { get; set; }
-        public string UserId { get; set; }
     }
 
     public class AddressModelValidator : AbstractValidator<AddressModel>
@@ -58,11 +57,6 @@ namespace SimpleEcommerce.Api.Models.Users
                 .NotNull();
 
             RuleFor(x => x.AddressLine2)
-              .MaximumLength(500)
-              .NotEmpty()
-              .NotNull();
-
-            RuleFor(x => x.UserId)
               .MaximumLength(500)
               .NotEmpty()
               .NotNull();

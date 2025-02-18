@@ -20,6 +20,8 @@ namespace SimpleEcommerce.Api.Services.Jwt
             var handler = new JwtSecurityTokenHandler();
 
             var jwtSecurityToken = new JwtSecurityToken(
+                    issuer: _jwtConfiguration.Issuer,
+                    audience : _jwtConfiguration.Audience,
                     claims: claims,
                     notBefore: DateTime.UtcNow,
                     expires: DateTime.UtcNow.AddDays(7),

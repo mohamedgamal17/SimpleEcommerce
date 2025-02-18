@@ -23,7 +23,7 @@ namespace SimpleEcommerce.Api.Services.Storage
 
             var args = new PutObjectArgs()
                 .WithBucket(_s3StorageConfiguration.BucketName)
-                .WithFileName(key)
+                .WithObject(key)
                 .WithContentType(contentType)
                 .WithStreamData(content)
                 .WithObjectSize(content.Length);
