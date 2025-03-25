@@ -24,7 +24,7 @@ namespace SimpleEcommerce.Api.Domain.Cart
 
             if(item == null)
             {
-                item = new BasketItem(Id, productId,quantity);
+                item = new BasketItem(Id, productId);
 
                 Items.Add(item);
             }
